@@ -642,11 +642,207 @@
 
   .search-wrap button:hover { color: var(--accent); }
 
+  /* Floating toggle button */
+  .mode-toggle {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mode-toggle-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  .mode-toggle-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+    transform: scale(1.08);
+  }
+
+  .mode-toggle-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 4px 20px rgba(34,217,127,0.2);
+  }
+
+  .mode-toggle-btn .toggle-tooltip {
+    display: none;
+    position: absolute;
+    right: 62px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .mode-toggle-btn:hover .toggle-tooltip { display: block; }
+
+  /* Live trades feed */
+  .trades-feed { display: none; }
+  .trades-feed.visible { display: block; }
+  .leaderboard-view.hidden { display: none; }
+
+  .trade-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .trade-card:hover {
+    border-color: rgba(34,217,127,0.3);
+  }
+
+  .trade-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .trade-icon.buy { background: var(--accent-dim); }
+  .trade-icon.sell { background: var(--red-dim); }
+
+  .trade-body { flex: 1; min-width: 0; }
+
+  .trade-headline {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+
+  .trade-headline .t-user { color: var(--accent); font-weight: 700; }
+  .trade-headline .t-action-buy { color: var(--accent); }
+  .trade-headline .t-action-sell { color: var(--red); }
+  .trade-headline .t-asset { color: var(--blue); }
+
+  .trade-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .trade-meta span { display: flex; align-items: center; gap: 4px; }
+
+  .trade-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .trade-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  .trades-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .trades-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .trades-header h2 span { color: var(--accent); }
+
+  .trades-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .trades-filter-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .trades-filter-btn:hover { color: var(--text-dim); }
+  .trades-filter-btn.active { background: var(--accent-dim); color: var(--accent); border-color: rgba(34,217,127,0.25); }
+
+  .trades-refresh-btn {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .trades-refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .trades-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+
   @media (max-width: 640px) {
     .controls { flex-direction: column; align-items: stretch; }
     .tab-row { justify-content: center; }
     .time-row { flex-wrap: wrap; justify-content: center; width: 100%; }
     .market-strip { grid-template-columns: repeat(2, 1fr); }
+    .mode-toggle { right: 12px; }
+    .mode-toggle-btn { width: 44px; height: 44px; font-size: 18px; }
   }
 </style>
 </head>
@@ -667,39 +863,75 @@
     <div class="ms-card"><div class="ms-label">SVC → USDC</div><div class="ms-val" id="msRate">—</div></div>
   </div>
 
-  <div class="controls">
-    <div class="tab-row">
-      <button class="tab-btn active" onclick="switchView('richlist', this)">💰 Net Worth</button>
-      <button class="tab-btn" onclick="switchView('volume', this)">📊 Volume</button>
-      <button class="tab-btn" onclick="switchView('managers', this)">🏆 Best Managers</button>
+  <!-- LEADERBOARD VIEW -->
+  <div class="leaderboard-view" id="leaderboardView">
+    <div class="controls">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchView('richlist', this)">💰 Net Worth</button>
+        <button class="tab-btn" onclick="switchView('volume', this)">📊 Volume</button>
+        <button class="tab-btn" onclick="switchView('managers', this)">🏆 Best Managers</button>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <div class="search-wrap">
+          <input type="text" id="searchInput" placeholder="Search user..." autocomplete="off" />
+          <button id="searchBtn" onclick="doSearch()">🔍</button>
+          <button id="clearBtn" onclick="clearSearch()" style="display:none">✕</button>
+        </div>
+        <div class="per-page-wrap">
+          <label>Show</label>
+          <select id="perPageSelect" onchange="changePerPage()">
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-      <div class="search-wrap">
-        <input type="text" id="searchInput" placeholder="Search user..." autocomplete="off" />
-        <button id="searchBtn" onclick="doSearch()">🔍</button>
-        <button id="clearBtn" onclick="clearSearch()" style="display:none">✕</button>
-      </div>
-      <div class="per-page-wrap">
-        <label>Show</label>
-        <select id="perPageSelect" onchange="changePerPage()">
-          <option value="20" selected>20</option>
-          <option value="50">50</option>
-        </select>
-      </div>
+
+    <div class="time-row" id="timeRow">
+      <button class="time-btn" onclick="setTimePeriod('1d', this)">1D</button>
+      <button class="time-btn active" onclick="setTimePeriod('7d', this)">7D</button>
+      <button class="time-btn" onclick="setTimePeriod('14d', this)">14D</button>
+      <button class="time-btn" onclick="setTimePeriod('30d', this)">30D</button>
+      <button class="time-btn" onclick="setTimePeriod('lifetime', this)">Lifetime</button>
+    </div>
+
+    <div id="content">
+      <div class="loader"><div class="spinner"></div><p>Loading leaderboard...</p></div>
     </div>
   </div>
 
-  <div class="time-row" id="timeRow">
-    <button class="time-btn" onclick="setTimePeriod('1d', this)">1D</button>
-    <button class="time-btn active" onclick="setTimePeriod('7d', this)">7D</button>
-    <button class="time-btn" onclick="setTimePeriod('14d', this)">14D</button>
-    <button class="time-btn" onclick="setTimePeriod('30d', this)">30D</button>
-    <button class="time-btn" onclick="setTimePeriod('lifetime', this)">Lifetime</button>
+  <!-- LIVE TRADES VIEW -->
+  <div class="trades-feed" id="tradesFeed">
+    <div class="trades-header">
+      <h2>🔄 Live <span>Trades</span></h2>
+      <div class="trades-controls">
+        <div class="search-wrap" style="margin-right:4px;">
+          <input type="text" id="tradeSearchInput" placeholder="Search user trades..." autocomplete="off" />
+          <button onclick="searchTrades()">🔍</button>
+        </div>
+        <button class="trades-filter-btn active" onclick="setTradeFilter('all', this)">All</button>
+        <button class="trades-filter-btn" onclick="setTradeFilter('buy', this)">Buys</button>
+        <button class="trades-filter-btn" onclick="setTradeFilter('sell', this)">Sells</button>
+        <button class="trades-refresh-btn" onclick="manualRefreshTrades()" title="Refresh">🔄</button>
+      </div>
+    </div>
+    <div class="trades-count" id="tradesCount"></div>
+    <div id="tradesContent">
+      <div class="loader"><div class="spinner"></div><p>Loading trades...</p></div>
+    </div>
   </div>
+</div>
 
-  <div id="content">
-    <div class="loader"><div class="spinner"></div><p>Loading leaderboard...</p></div>
-  </div>
+<!-- Toggle buttons -->
+<div class="mode-toggle">
+  <button class="mode-toggle-btn active" id="toggleLeaderboard" onclick="showMode('leaderboard')">
+    📊
+    <span class="toggle-tooltip">Leaderboard</span>
+  </button>
+  <button class="mode-toggle-btn" id="toggleTrades" onclick="showMode('trades')">
+    🔄
+    <span class="toggle-tooltip">Live Trades</span>
+  </button>
 </div>
 
 <!-- Side Panel -->
@@ -1392,6 +1624,369 @@ function closeSidePanel() {
   document.getElementById('sidePanel').classList.remove('open');
   document.getElementById('spOverlay').classList.remove('open');
   document.body.style.overflow = '';
+}
+
+// ── Mode toggle ──
+let currentMode = 'leaderboard';
+let tradesLoaded = false;
+let tradeFilter = 'all';
+let allTrades = [];
+
+function showMode(mode) {
+  currentMode = mode;
+  const lb = document.getElementById('leaderboardView');
+  const tf = document.getElementById('tradesFeed');
+  const btnLB = document.getElementById('toggleLeaderboard');
+  const btnTF = document.getElementById('toggleTrades');
+
+  if (mode === 'leaderboard') {
+    lb.classList.remove('hidden');
+    tf.classList.remove('visible');
+    btnLB.classList.add('active');
+    btnTF.classList.remove('active');
+  } else {
+    lb.classList.add('hidden');
+    tf.classList.add('visible');
+    btnLB.classList.remove('active');
+    btnTF.classList.add('active');
+    if (!tradesLoaded) loadTrades();
+  }
+}
+
+function setTradeFilter(filter, btn) {
+  tradeFilter = filter;
+  document.querySelectorAll('.trades-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTrades();
+}
+
+async function searchTrades() {
+  const val = document.getElementById('tradeSearchInput').value.trim();
+  if (!val) { loadTrades(); return; }
+  
+  document.getElementById('tradesContent').innerHTML = `<div class="loader"><div class="spinner"></div><p>Searching trades for ${val}...</p></div>`;
+  try {
+    const data = await apiFetch(`/share_trade_history?per_page=50&name=${encodeURIComponent(val)}`);
+    allTrades = (data.items || []).sort((a, b) => (b.unix_time || b.id || 0) - (a.unix_time || a.id || 0));
+    renderTrades();
+  } catch (e) {
+    document.getElementById('tradesContent').innerHTML = `<div class="loader"><p style="color:var(--red)">Failed: ${e.message}</p></div>`;
+  }
+}
+
+// Enter key for trade search
+document.addEventListener('DOMContentLoaded', () => {
+  const tsInput = document.getElementById('tradeSearchInput');
+  if (tsInput) tsInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchTrades(); });
+});
+
+function timeAgo(timeVal) {
+  let then;
+  if (typeof timeVal === 'number') {
+    then = new Date(timeVal * 1000); // unix timestamp
+  } else {
+    then = new Date(timeVal);
+  }
+  const now = new Date();
+  const secs = Math.floor((now - then) / 1000);
+  if (isNaN(secs) || secs < 0) return '';
+  if (secs < 60) return secs + 's ago';
+  if (secs < 3600) return Math.floor(secs / 60) + 'm ago';
+  if (secs < 86400) return Math.floor(secs / 3600) + 'h ago';
+  return Math.floor(secs / 86400) + 'd ago';
+}
+
+let tradeRefreshTimer = null;
+
+async function manualRefreshTrades() {
+  if (!allTrades.length) {
+    // First load — do the full thing
+    loadTrades();
+    return;
+  }
+  
+  // Quick refresh — just check the most active recent users for new trades
+  const el = document.getElementById('tradesCount');
+  if (el) el.textContent = `Refreshing...`;
+  
+  try {
+    const [vol1d, vol1dSell] = await Promise.allSettled([
+      apiFetch('/users/detailed?per_page=50&sort_by=buy_volume_1_day&sort_order=desc'),
+      apiFetch('/users/detailed?per_page=50&sort_by=sell_volume_1_day&sort_order=desc')
+    ]);
+    
+    const names = new Set();
+    names.add('amazmoGIANTS');
+    [vol1d, vol1dSell].forEach(r => {
+      if (r.status === 'fulfilled') (r.value.items || []).forEach(u => { if (u.name) names.add(u.name); });
+    });
+    
+    const searchVal = document.getElementById('tradeSearchInput').value.trim();
+    if (searchVal) names.add(searchVal);
+    
+    const userList = [...names].slice(0, 30);
+    
+    const results = await Promise.allSettled(
+      userList.map(name => apiFetch(`/share_trade_history?per_page=20&name=${encodeURIComponent(name)}`))
+    );
+    
+    let combined = [...allTrades]; // keep existing trades
+    for (const r of results) {
+      if (r.status === 'fulfilled' && r.value && r.value.items) {
+        combined = [...combined, ...r.value.items];
+      }
+    }
+    
+    // Deduplicate
+    const seen = new Set();
+    allTrades = combined.filter(t => {
+      if (seen.has(t.id)) return false;
+      seen.add(t.id);
+      return true;
+    });
+    
+    allTrades.sort((a, b) => (b.unix_time || b.id || 0) - (a.unix_time || a.id || 0));
+    
+    const cutoff = Math.floor(Date.now() / 1000) - (28 * 24 * 60 * 60);
+    allTrades = allTrades.filter(t => (t.unix_time || 0) >= cutoff);
+    
+    renderTrades();
+    
+    if (el) {
+      el.style.color = 'var(--accent)';
+      el.textContent = `✅ Refreshed! Showing ${allTrades.length} trades`;
+      setTimeout(() => { el.style.color = ''; }, 3000);
+    }
+    
+    nextRefreshAt = Date.now() + 5 * 60 * 1000;
+  } catch (e) {
+    if (el) {
+      el.style.color = 'var(--red)';
+      el.textContent = `Refresh failed — showing cached trades (${allTrades.length})`;
+      setTimeout(() => { el.style.color = ''; }, 3000);
+    }
+  }
+}
+
+async function loadTrades() {
+  tradesLoaded = true;
+  document.getElementById('tradesContent').innerHTML = `<div class="loader"><div class="spinner"></div><p>Loading latest trades...</p></div>`;
+  try {
+    // Step 1: Get as many unique active usernames as possible from multiple angles
+    const queries = [
+      '/users/detailed?per_page=50&sort_by=buy_volume_1_day&sort_order=desc',
+      '/users/detailed?per_page=50&sort_by=sell_volume_1_day&sort_order=desc',
+      '/users/detailed?per_page=50&sort_by=buy_volume_7_day&sort_order=desc',
+      '/users/detailed?per_page=50&sort_by=sell_volume_7_day&sort_order=desc',
+      '/users/detailed?per_page=50&sort_by=total_volume_30_day&sort_order=desc',
+      '/users/detailed?per_page=50&sort_by=total_volume&sort_order=desc',
+      '/users/detailed?per_page=50&sort_by=buy_volume_1_day&sort_order=desc&page=2',
+      '/users/detailed?per_page=50&sort_by=total_volume_30_day&sort_order=desc&page=2',
+    ];
+    
+    const userResults = await Promise.allSettled(queries.map(q => apiFetch(q)));
+    
+    const names = new Set();
+    names.add('amazmoGIANTS');
+    userResults.forEach(r => {
+      if (r.status === 'fulfilled') (r.value.items || []).forEach(u => { if (u.name) names.add(u.name); });
+    });
+    
+    const searchVal = document.getElementById('tradeSearchInput').value.trim();
+    if (searchVal) names.add(searchVal);
+    
+    const userList = [...names];
+    
+    document.getElementById('tradesContent').innerHTML = `<div class="loader"><div class="spinner"></div><p>Loading trades from ${userList.length} users...</p></div>`;
+    
+    // Step 2: Fetch trades in batches to avoid overwhelming the API
+    const batchSize = 10;
+    let combined = [];
+    
+    for (let i = 0; i < userList.length; i += batchSize) {
+      const batch = userList.slice(i, i + batchSize);
+      const results = await Promise.allSettled(
+        batch.map(name => apiFetch(`/share_trade_history?per_page=20&name=${encodeURIComponent(name)}`))
+      );
+      for (const r of results) {
+        if (r.status === 'fulfilled' && r.value && r.value.items) {
+          combined = [...combined, ...r.value.items];
+        }
+      }
+    }
+    
+    // Deduplicate
+    const seen = new Set();
+    allTrades = combined.filter(t => {
+      if (seen.has(t.id)) return false;
+      seen.add(t.id);
+      return true;
+    });
+    
+    // Sort newest first
+    allTrades.sort((a, b) => (b.unix_time || b.id || 0) - (a.unix_time || a.id || 0));
+    
+    // Filter to last 28 days only
+    const cutoff = Math.floor(Date.now() / 1000) - (28 * 24 * 60 * 60);
+    allTrades = allTrades.filter(t => (t.unix_time || 0) >= cutoff);
+    
+    if (!allTrades.length) throw new Error('No trades found');
+    renderTrades();
+    startTradeAutoRefresh();
+  } catch (e) {
+    document.getElementById('tradesContent').innerHTML = `<div class="loader"><p style="color:var(--red)">Could not load trades: ${e.message}</p></div>`;
+  }
+}
+
+function startTradeAutoRefresh() {
+  if (tradeRefreshTimer) clearInterval(tradeRefreshTimer);
+  tradeRefreshTimer = setInterval(() => {
+    if (currentMode === 'trades') {
+      silentRefreshTrades();
+    }
+  }, 5 * 60 * 1000); // every 5 minutes
+  updateRefreshCountdown();
+}
+
+let countdownTimer = null;
+let nextRefreshAt = 0;
+
+function updateRefreshCountdown() {
+  nextRefreshAt = Date.now() + 5 * 60 * 1000;
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    const secs = Math.max(0, Math.round((nextRefreshAt - Date.now()) / 1000));
+    const el = document.getElementById('tradesCount');
+    if (el && currentMode === 'trades') {
+      const mins = Math.floor(secs / 60);
+      const s = secs % 60;
+      el.textContent = `Showing ${allTrades.length} trades · Auto-refresh in ${mins}:${s.toString().padStart(2, '0')}`;
+    }
+  }, 1000);
+}
+
+async function silentRefreshTrades() {
+  try {
+    const [vol1dBuy, vol1dSell] = await Promise.allSettled([
+      apiFetch('/users/detailed?per_page=20&sort_by=buy_volume_1_day&sort_order=desc'),
+      apiFetch('/users/detailed?per_page=20&sort_by=sell_volume_1_day&sort_order=desc')
+    ]);
+    
+    const names = new Set();
+    names.add('amazmoGIANTS'); // always include
+    [vol1dBuy, vol1dSell].forEach(r => {
+      if (r.status === 'fulfilled') (r.value.items || []).forEach(u => { if (u.name) names.add(u.name); });
+    });
+    
+    const searchVal = document.getElementById('tradeSearchInput').value.trim();
+    if (searchVal) names.add(searchVal);
+    
+    const userList = [...names].slice(0, 20);
+    
+    const results = await Promise.allSettled(
+      userList.map(name => apiFetch(`/share_trade_history?per_page=50&name=${encodeURIComponent(name)}`))
+    );
+    
+    let combined = [];
+    for (const r of results) {
+      if (r.status === 'fulfilled' && r.value && r.value.items) {
+        combined = [...combined, ...r.value.items];
+      }
+    }
+    
+    const seen = new Set();
+    const newTrades = combined.filter(t => {
+      if (seen.has(t.id)) return false;
+      seen.add(t.id);
+      return true;
+    });
+    newTrades.sort((a, b) => (b.unix_time || b.id || 0) - (a.unix_time || a.id || 0));
+    
+    // Filter to last 20 days only
+    const cutoff = Math.floor(Date.now() / 1000) - (28 * 24 * 60 * 60);
+    const filteredNew = newTrades.filter(t => (t.unix_time || 0) >= cutoff);
+    
+    // Check for new trades
+    const oldIds = new Set(allTrades.map(t => t.id));
+    const brandNew = filteredNew.filter(t => !oldIds.has(t.id));
+    
+    if (brandNew.length > 0) {
+      allTrades = filteredNew;
+      renderTrades();
+      // Flash the count to show new trades arrived
+      const el = document.getElementById('tradesCount');
+      if (el) {
+        el.style.color = 'var(--accent)';
+        el.textContent = `🟢 ${brandNew.length} new trade${brandNew.length > 1 ? 's' : ''} found! Showing ${allTrades.length} total`;
+        setTimeout(() => { el.style.color = ''; }, 3000);
+      }
+    }
+    
+    // Reset countdown
+    nextRefreshAt = Date.now() + 5 * 60 * 1000;
+  } catch (e) {
+    console.warn('Silent refresh failed', e);
+  }
+}
+
+function renderTrades() {
+  let trades = allTrades;
+  if (tradeFilter === 'buy') trades = trades.filter(t => t.market_buy === true);
+  if (tradeFilter === 'sell') trades = trades.filter(t => t.market_buy === false);
+
+  document.getElementById('tradesCount').textContent = `Showing ${trades.length} recent trades`;
+
+  if (!trades.length) {
+    document.getElementById('tradesContent').innerHTML = `<div class="loader"><p style="color:var(--text-dim)">No trades found</p></div>`;
+    return;
+  }
+
+  const html = trades.map(t => {
+    const buyer = t.buyer || 'Unknown';
+    const seller = t.seller || 'Unknown';
+    const price = t.price || 0;
+    const qty = t.num || 1;
+    const total = price * qty;
+    const shareType = t.share_type || 'asset';
+    const shareId = t.share_id || '?';
+    const typeLabel = shareType === 'club' ? '🏟️' : shareType === 'player' ? '⚽' : '📦';
+    const typeName = shareType.charAt(0).toUpperCase() + shareType.slice(1);
+    const time = t.time || '';
+    const isBuy = t.market_buy;
+
+    const buyerPic = t.buyer_profile_pic
+      ? `<img src="${t.buyer_profile_pic}" onerror="this.parentElement.textContent='${buyer[0]}'" style="width:24px;height:24px;border-radius:6px;"/>`
+      : `<span style="width:24px;height:24px;border-radius:6px;background:var(--accent-dim);color:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${buyer[0]}</span>`;
+
+    const sellerPic = t.seller_profile_pic
+      ? `<img src="${t.seller_profile_pic}" onerror="this.parentElement.textContent='${seller[0]}'" style="width:24px;height:24px;border-radius:6px;"/>`
+      : `<span style="width:24px;height:24px;border-radius:6px;background:var(--red-dim);color:var(--red);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${seller[0]}</span>`;
+
+    return `<div class="trade-card">
+      <div class="trade-icon ${isBuy ? 'buy' : 'sell'}">${typeLabel}</div>
+      <div class="trade-body">
+        <div class="trade-headline">
+          ${buyerPic} <span class="t-user">${buyer}</span>
+          <span class="t-action-buy"> bought </span>
+          <span class="t-asset">${qty} ${qty > 1 ? 'shares' : 'share'} in ${typeName} #${shareId}</span>
+          <span> from </span>
+          ${sellerPic} <span class="t-user">${seller}</span>
+        </div>
+        <div class="trade-meta">
+          <span>💎 Price: ${fmt(price)} SVC per share</span>
+          <span>📦 Qty: ${qty}</span>
+          ${isBuy ? '<span style="color:var(--accent)">⚡ Market Buy</span>' : '<span style="color:var(--text-muted)">📋 Limit</span>'}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--text-muted);text-align:right;margin-bottom:2px;">TOTAL SPENT</div>
+        <div class="trade-price green">${fmt(total)} <span style="font-size:11px;color:var(--text-muted)">SVC</span></div>
+        <div class="trade-time">${time ? timeAgo(time) : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tradesContent').innerHTML = html;
 }
 
 loadMarket();
