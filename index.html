@@ -3,460 +3,1993 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Soccerverse Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<title>Soccerverse — Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#0b0914;--bg2:#13101f;--bg3:#16132a;--border:#1e1b2e;--border2:#2d2640;
-    --text:#e2e0eb;--text2:#94a3b8;--text3:#64748b;--purple:#a78bfa;--purple2:#c084fc;
-    --purple3:#7c3aed;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;
-    --orange:#f97316;--cyan:#06b6d4;
+  :root {
+    --bg: #0a0c10;
+    --surface: #12151c;
+    --surface2: #191d27;
+    --surface3: #1f2430;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #7a8499;
+    --text-muted: #4a5568;
+    --accent: #22d97f;
+    --accent-dim: rgba(34, 217, 127, 0.12);
+    --accent-glow: rgba(34, 217, 127, 0.25);
+    --red: #ff4d6a;
+    --red-dim: rgba(255, 77, 106, 0.12);
+    --blue: #4d9fff;
+    --blue-dim: rgba(77, 159, 255, 0.12);
+    --yellow: #ffc64d;
+    --yellow-dim: rgba(255, 198, 77, 0.12);
+    --purple: #a87fff;
+    --gold: #ffd700;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
   }
-  body{background:var(--bg);color:var(--text);font-family:'DM Sans','Segoe UI',sans-serif;min-height:100vh}
-  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
-  .header{padding:20px 32px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%)}
-  .header-inner{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto;flex-wrap:wrap;gap:12px}
-  .logo{font-size:26px;font-family:'Playfair Display',serif;font-weight:800;background:linear-gradient(135deg,#c084fc,#a78bfa,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{margin-top:4px;font-size:11px;color:var(--text3);letter-spacing:1px}
-  .tabs{display:flex;gap:4px;background:var(--bg2);border-radius:12px;padding:4px;border:1px solid var(--border)}
-  .tab-btn{padding:8px 16px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:var(--text2);font-family:inherit}
-  .tab-btn.active{background:linear-gradient(135deg,var(--purple3),var(--purple));color:#fff}
-  .content{max-width:900px;margin:0 auto;padding:24px 32px}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  .status-bar{padding:8px 16px;background:rgba(167,139,250,.07);border:1px solid var(--border2);border-radius:10px;color:var(--purple);margin-bottom:16px;font-size:12px;animation:pulse 1.5s infinite;display:flex;align-items:center;gap:8px}
-  .status-dot{width:8px;height:8px;border-radius:50%;background:var(--purple)}
-  .error-box{padding:16px;background:rgba(239,68,68,.13);border:1px solid var(--red);border-radius:12px;color:#fca5a5;margin-bottom:20px;font-size:13px}
-  .error-box h3{font-weight:700;margin-bottom:6px}
-  .error-box .hint{font-size:11px;color:rgba(248,113,113,.6);margin:8px 0}
-  .retry-btn{margin-top:8px;padding:6px 14px;border-radius:8px;border:1px solid var(--red);background:transparent;color:#fca5a5;font-size:12px;cursor:pointer;font-weight:600;font-family:inherit}
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
 
-  .search-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
-  .search-input{padding:10px 16px;border-radius:10px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:13px;outline:none;font-family:inherit;flex:1;min-width:180px}
-  .filter-select{padding:10px 14px;border-radius:10px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:13px;outline:none;font-family:inherit}
-  .sort-btn{padding:10px 14px;border-radius:10px;border:1px solid var(--border2);background:var(--bg2);color:var(--purple);font-size:13px;cursor:pointer;font-weight:600;font-family:inherit}
-  .count{color:var(--text3);font-size:12px;margin-left:auto}
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(34, 217, 127, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34, 217, 127, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-  .player-list{display:flex;flex-direction:column;gap:8px}
-  .player-row{background:linear-gradient(135deg,var(--bg3) 0%,#0f0d1a 100%);border-radius:14px;padding:14px 20px;border:1px solid var(--border);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:16px}
-  .player-row:hover{border-color:var(--purple3);transform:translateY(-1px);box-shadow:0 4px 20px rgba(124,58,237,.1)}
-  .player-info{flex:1;min-width:0}
-  .player-name{font-weight:700;font-size:15px;color:#f1f0f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .player-meta{font-size:11px;color:var(--text2);margin-top:2px}
-  .player-stats-mini{display:flex;gap:12px;font-size:11px;margin-top:4px;flex-wrap:wrap}
-  .player-stats-mini span{color:var(--text3)}
-  .player-stats-mini b{color:var(--text);font-weight:600}
-  .player-rating-box{padding:6px 12px;border-radius:10px;font-size:20px;font-weight:800;color:#fff;flex-shrink:0;text-align:center;min-width:50px}
-  .player-sparkline{flex-shrink:0}
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
 
-  .grid{display:grid;gap:12px}
-  .grid-clubs{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
-  .grid-leagues{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
-  .grid-market{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
-  .card{background:linear-gradient(135deg,var(--bg3) 0%,#0f0d1a 100%);border-radius:14px;padding:18px;border:1px solid var(--border);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-  .card:hover{border-color:var(--purple3);transform:translateY(-2px)}
-  .market-card{background:linear-gradient(135deg,var(--bg3) 0%,#0f0d1a 100%);border-radius:14px;padding:20px;border:1px solid var(--border);position:relative;overflow:hidden}
-  .market-icon{position:absolute;top:12px;right:14px;font-size:24px;opacity:.2}
-  .market-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-  .market-val{font-size:20px;font-weight:700}
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
 
-  .bar-wrap{display:flex;align-items:center;gap:6px}
-  .bar-bg{width:80px;height:6px;background:var(--border);border-radius:3px}
-  .bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
-  .bar-val{font-size:11px;color:var(--purple);font-weight:600;min-width:22px}
-  .form-dots{display:flex;gap:3px}
-  .form-dot{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
-  .form-W{background:var(--green)}.form-D{background:var(--yellow)}.form-L{background:var(--red)}.form-X{background:#475569}
+  .header .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(34, 217, 127, 0.2);
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
 
-  .stat-box{background:var(--bg2);border-radius:10px;padding:10px 12px;border:1px solid var(--border)}
-  .stat-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-  .stat-val{font-size:14px;color:var(--text);font-weight:600}
-  .spinner{display:flex;justify-content:center;padding:60px}
-  .spinner-ring{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite}
-  .empty{text-align:center;padding:60px;color:var(--text3)}
-  .empty-icon{font-size:40px;margin-bottom:12px}
-  .pagination{display:flex;justify-content:center;gap:8px;margin-top:20px}
-  .pg-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--purple);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
-  .pg-btn:disabled{opacity:.4;cursor:default}
-  .pg-info{color:var(--text2);font-size:12px;padding:8px 12px}
+  .header h1 {
+    font-size: clamp(30px, 5vw, 48px);
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
 
-  .modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px}
-  .modal{background:linear-gradient(135deg,#1a1528 0%,#0f0d1a 100%);border-radius:20px;border:1px solid var(--border2);max-width:540px;width:100%;padding:32px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto}
-  .modal-wide{max-width:720px}
-  .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;z-index:10}
-  .modal h2{margin:0 0 20px;font-size:22px;color:#f1f0f5;font-family:'Playfair Display',serif}
+  .header h1 span {
+    background: linear-gradient(135deg, var(--accent), #4dffa6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
-  table{width:100%;border-collapse:separate;border-spacing:0 3px;font-size:12px}
-  th{padding:6px 8px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-size:9px;font-weight:600}
-  td{padding:8px}
-  tr.stripe{background:#0f0d1a}
-  tr.top{background:rgba(167,139,250,.07)}
-  .fade-in{animation:fadeIn .4s ease}
+  .header p {
+    color: var(--text-dim);
+    font-size: 15px;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .tab-row {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    color: var(--text-dim);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { background: var(--accent); color: var(--bg); }
+
+  .per-page-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .per-page-wrap label { font-size: 13px; color: var(--text-muted); }
+
+  .per-page-wrap select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .per-page-wrap select:focus { border-color: var(--accent); }
+
+  .market-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .ms-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    text-align: center;
+  }
+
+  .ms-card .ms-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .ms-card .ms-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .loader { text-align: center; padding: 80px 0; }
+
+  .loader .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loader p { color: var(--text-dim); font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .table-scroll { overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; min-width: 800px; }
+
+  thead th {
+    text-align: left;
+    padding: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    user-select: none;
+    transition: color 0.2s;
+  }
+
+  thead th[onclick]:hover, thead th[style*="cursor"] :hover {
+    color: var(--accent);
+  }
+
+  tbody tr { transition: background 0.15s; cursor: pointer; }
+  tbody tr:hover { background: var(--surface2); }
+
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(42, 48, 64, 0.4);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .rank-cell {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    width: 50px;
+    text-align: center;
+  }
+
+  .rank-1 { color: var(--gold); }
+  .rank-2 { color: var(--silver); }
+  .rank-3 { color: var(--bronze); }
+  .rank-medal { font-size: 20px; }
+
+  .user-cell { display: flex; align-items: center; gap: 12px; }
+
+  .user-cell .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .user-cell .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .user-cell .uname { font-weight: 700; font-size: 14px; color: var(--text); }
+
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+  .green { color: var(--accent); }
+  .blue { color: var(--blue); }
+  .yellow { color: var(--yellow); }
+  .red { color: var(--red); }
+  .purple { color: var(--purple); }
+
+  .mini-bar-wrap {
+    width: 80px; height: 6px;
+    background: var(--surface3);
+    border-radius: 3px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+
+  .mini-bar { height: 100%; border-radius: 3px; background: var(--accent); }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .page-btn {
+    padding: 10px 18px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .page-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 0 12px;
+  }
+
+  .expand-row td { padding: 0 !important; border-bottom: 1px solid var(--border); }
+
+  .expand-content {
+    padding: 20px 24px;
+    background: var(--surface2);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+  }
+
+  .expand-stat { text-align: center; }
+
+  .expand-stat .es-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .expand-stat .es-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  /* Side Panel */
+  .side-panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .side-panel-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .side-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(480px, 90vw);
+    height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 101;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .side-panel.open {
+    transform: translateX(0);
+  }
+
+  .sp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .sp-header h3 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+
+  .sp-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .sp-close:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .sp-body {
+    padding: 28px;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .sp-section {
+    margin-bottom: 28px;
+  }
+
+  .sp-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sp-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(42, 48, 64, 0.3);
+  }
+
+  .sp-row:last-child { border-bottom: none; }
+
+  .sp-row .sp-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+  }
+
+  .sp-row .sp-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .sp-big-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .sp-big-stat .sp-big-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .sp-big-stat .sp-big-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 800;
+  }
+
+  .sp-big-stat .sp-big-sub {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .sp-formula {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+  }
+
+  .sp-formula-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sp-formula code {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--surface2);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+
+  .sp-formula p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .sp-formula p:last-child { margin-bottom: 0; }
+
+  .sp-formula .sp-highlight {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .sp-formula .sp-highlight-red {
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  /* Arrow button in expand row */
+  .detail-arrow-btn {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .detail-arrow-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .time-row {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+
+  .time-btn {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .time-btn:hover { color: var(--text-dim); }
+  .time-btn.active { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(34,217,127,0.25); }
+
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .search-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+  }
+
+  .search-wrap input {
+    background: none;
+    border: none;
+    outline: none;
+    padding: 10px 14px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    width: 180px;
+  }
+
+  .search-wrap input::placeholder { color: var(--text-muted); }
+
+  .search-wrap button {
+    background: none;
+    border: none;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-dim);
+    transition: color 0.2s;
+  }
+
+  .search-wrap button:hover { color: var(--accent); }
+
+  /* Floating toggle button */
+  .mode-toggle {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mode-toggle-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  .mode-toggle-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+    transform: scale(1.08);
+  }
+
+  .mode-toggle-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 4px 20px rgba(34,217,127,0.2);
+  }
+
+  .mode-toggle-btn .toggle-tooltip {
+    display: none;
+    position: absolute;
+    right: 62px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .mode-toggle-btn:hover .toggle-tooltip { display: block; }
+
+  /* Live trades feed */
+  .trades-feed { display: none; }
+  .trades-feed.visible { display: block; }
+  .leaderboard-view.hidden { display: none; }
+
+  .trade-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .trade-card:hover {
+    border-color: rgba(34,217,127,0.3);
+  }
+
+  .trade-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .trade-icon.buy { background: var(--accent-dim); }
+  .trade-icon.sell { background: var(--red-dim); }
+
+  .trade-body { flex: 1; min-width: 0; }
+
+  .trade-headline {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+
+  .trade-headline .t-user { color: var(--accent); font-weight: 700; }
+  .trade-headline .t-action-buy { color: var(--accent); }
+  .trade-headline .t-action-sell { color: var(--red); }
+  .trade-headline .t-asset { color: var(--blue); }
+
+  .trade-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .trade-meta span { display: flex; align-items: center; gap: 4px; }
+
+  .trade-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .trade-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  .trades-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .trades-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .trades-header h2 span { color: var(--accent); }
+
+  .trades-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .trades-filter-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .trades-filter-btn:hover { color: var(--text-dim); }
+  .trades-filter-btn.active { background: var(--accent-dim); color: var(--accent); border-color: rgba(34,217,127,0.25); }
+
+  .trades-refresh-btn {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .trades-refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .trades-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 640px) {
+    .controls { flex-direction: column; align-items: stretch; }
+    .tab-row { justify-content: center; }
+    .time-row { flex-wrap: wrap; justify-content: center; width: 100%; }
+    .market-strip { grid-template-columns: repeat(2, 1fr); }
+    .mode-toggle { right: 12px; }
+    .mode-toggle-btn { width: 44px; height: 44px; font-size: 18px; }
+  }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-inner">
-    <div>
-      <div class="logo">⚽ Soccerverse</div>
-      <div class="subtitle">LIVE DATACENTRE DASHBOARD</div>
+<div class="app">
+  <div class="header">
+    <div class="badge">Live Leaderboard</div>
+    <h1>Soccerverse <span>Leaderboard</span></h1>
+    <p>Users ranked by net worth, balance, and trading volume</p>
+  </div>
+
+  <div class="market-strip">
+    <div class="ms-card"><div class="ms-label">Total Market Cap</div><div class="ms-val" id="msTotalCap">—</div></div>
+    <div class="ms-card"><div class="ms-label">7D Volume</div><div class="ms-val" id="ms7dVol">—</div></div>
+    <div class="ms-card"><div class="ms-label">Active Users</div><div class="ms-val" id="msActive">—</div></div>
+    <div class="ms-card"><div class="ms-label">Total Users</div><div class="ms-val" id="msTotal">—</div></div>
+    <div class="ms-card"><div class="ms-label">SVC → USDC</div><div class="ms-val" id="msRate">—</div></div>
+  </div>
+
+  <!-- LEADERBOARD VIEW -->
+  <div class="leaderboard-view" id="leaderboardView">
+    <div class="controls">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchView('richlist', this)">💰 Net Worth</button>
+        <button class="tab-btn" onclick="switchView('volume', this)">📊 Volume</button>
+        <button class="tab-btn" onclick="switchView('managers', this)">🏆 Best Managers</button>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <div class="search-wrap">
+          <input type="text" id="searchInput" placeholder="Search user..." autocomplete="off" />
+          <button id="searchBtn" onclick="doSearch()">🔍</button>
+          <button id="clearBtn" onclick="clearSearch()" style="display:none">✕</button>
+        </div>
+        <div class="per-page-wrap">
+          <label>Show</label>
+          <select id="perPageSelect" onchange="changePerPage()">
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <div class="tabs" id="tabs"></div>
+
+    <div class="time-row" id="timeRow">
+      <button class="time-btn" onclick="setTimePeriod('1d', this)">1D</button>
+      <button class="time-btn active" onclick="setTimePeriod('7d', this)">7D</button>
+      <button class="time-btn" onclick="setTimePeriod('14d', this)">14D</button>
+      <button class="time-btn" onclick="setTimePeriod('30d', this)">30D</button>
+      <button class="time-btn" onclick="setTimePeriod('lifetime', this)">Lifetime</button>
+    </div>
+
+    <div id="content">
+      <div class="loader"><div class="spinner"></div><p>Loading leaderboard...</p></div>
+    </div>
+  </div>
+
+  <!-- LIVE TRADES VIEW -->
+  <div class="trades-feed" id="tradesFeed">
+    <div class="trades-header">
+      <h2>🔄 Live <span>Trades</span></h2>
+      <div class="trades-controls">
+        <div class="search-wrap" style="margin-right:4px;">
+          <input type="text" id="tradeSearchInput" placeholder="Search user trades..." autocomplete="off" />
+          <button onclick="searchTrades()">🔍</button>
+        </div>
+        <button class="trades-filter-btn active" onclick="setTradeFilter('all', this)">All</button>
+        <button class="trades-filter-btn" onclick="setTradeFilter('buy', this)">Buys</button>
+        <button class="trades-filter-btn" onclick="setTradeFilter('sell', this)">Sells</button>
+        <button class="trades-refresh-btn" onclick="manualRefreshTrades()" title="Refresh">🔄</button>
+      </div>
+    </div>
+    <div class="trades-count" id="tradesCount"></div>
+    <div id="tradesContent">
+      <div class="loader"><div class="spinner"></div><p>Loading trades...</p></div>
+    </div>
   </div>
 </div>
-<div class="content" id="content"></div>
-<div id="modal-root"></div>
+
+<!-- Toggle buttons -->
+<div class="mode-toggle">
+  <button class="mode-toggle-btn active" id="toggleLeaderboard" onclick="showMode('leaderboard')">
+    📊
+    <span class="toggle-tooltip">Leaderboard</span>
+  </button>
+  <button class="mode-toggle-btn" id="toggleTrades" onclick="showMode('trades')">
+    🔄
+    <span class="toggle-tooltip">Live Trades</span>
+  </button>
+</div>
+
+<!-- Side Panel -->
+<div class="side-panel-overlay" id="spOverlay" onclick="closeSidePanel()"></div>
+<div class="side-panel" id="sidePanel">
+  <div class="sp-header">
+    <h3 id="spTitle">Advanced P/L</h3>
+    <button class="sp-close" onclick="closeSidePanel()">✕</button>
+  </div>
+  <div class="sp-body" id="spBody">
+    <p style="color:var(--text-dim)">Loading...</p>
+  </div>
+</div>
 
 <script>
-const API = "https://services.soccerverse.com/api";
+const API_BASE = 'https://services.soccerverse.com/api';
+
 const PROXIES = [
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
   url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => url
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
 ];
-let bestProxy = 0;
 
-let state = {
-  tab: "players",
-  players: [], playerTotal: 0, playerPage: 1, playerSort: "rating", playerOrder: "desc", playerPos: "", playerSearch: "",
-  clubs: [], clubTotal: 0, clubPage: 1,
-  leagues: [],
-  market: null,
-  loading: false, error: null, status: "",
-  modal: null,
-  leagueTable: [],
-};
+let currentView = 'richlist';
+let currentPage = 1;
+let perPage = 20;
+let timePeriod = '7d';
+let searchQuery = '';
+let expandedRow = null;
+let workingProxy = null;
+let svcRate = 0; // SVC to USDC rate
+let volSortField = null; // current volume sort override
+let volSortOrder = 'desc'; // asc or desc
 
-function setState(patch) { Object.assign(state, patch); render(); }
+// Search
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
 
-let abortCtrl = null;
-async function apiFetch(endpoint, params = {}) {
-  if (abortCtrl) abortCtrl.abort();
-  abortCtrl = new AbortController();
-  const url = new URL(API + endpoint);
-  for (const [k,v] of Object.entries(params)) { if (v != null && v !== "") url.searchParams.set(k, v); }
-  const raw = url.toString();
-  const order = [bestProxy, ...Array.from({length:PROXIES.length},(_,i)=>i).filter(i=>i!==bestProxy)];
-  for (const i of order) {
+function doSearch() {
+  const val = searchInput.value.trim();
+  searchQuery = val;
+  currentPage = 1;
+  expandedRow = null;
+  document.getElementById('clearBtn').style.display = val ? 'block' : 'none';
+  loadData();
+}
+
+function clearSearch() {
+  searchInput.value = '';
+  searchQuery = '';
+  currentPage = 1;
+  document.getElementById('clearBtn').style.display = 'none';
+  loadData();
+} // null = not tested, 'direct' = no proxy, or a proxy function
+
+function fmt(n) {
+  if (n === null || n === undefined) return '—';
+  if (typeof n !== 'number') n = Number(n);
+  if (isNaN(n)) return '—';
+  n = n / 10000; // SVC conversion
+  if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+// For numbers that should NOT be divided (counts, ranks, etc)
+function fmtRaw(n) {
+  if (n === null || n === undefined) return '—';
+  if (typeof n !== 'number') n = Number(n);
+  if (isNaN(n)) return '—';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+
+async function tryFetch(url, timeout) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+async function apiFetch(path) {
+  const url = `${API_BASE}${path}`;
+
+  // Use known working method
+  if (workingProxy === 'direct') {
     try {
-      const r = await fetch(PROXIES[i](raw), {signal:abortCtrl.signal, headers:{Accept:"application/json"}});
-      if (r.status===429){await new Promise(r=>setTimeout(r,2500));const r2=await fetch(PROXIES[i](raw),{signal:abortCtrl.signal});if(r2.ok){bestProxy=i;return r2.json()}continue}
-      if (!r.ok) continue;
-      bestProxy=i; return r.json();
-    } catch(e) { if(e.name==="AbortError") throw e; continue; }
+      const res = await tryFetch(url, 10000);
+      if (res.ok) return res.json();
+    } catch (e) {}
+    // Direct failed, reset and try proxies
+    workingProxy = null;
   }
-  throw new Error("Could not reach the Soccerverse API. Try refreshing.");
-}
-
-// ---- Helpers ----
-const fmt = n => n != null ? Number(n).toLocaleString() : "—";
-const fmtSVC = n => {
-  if (n == null) return "—";
-  const v = Number(n) / 10000;
-  if (v >= 1000000) return (v/1000000).toFixed(2) + "M SVC";
-  if (v >= 1000) return (v/1000).toFixed(1) + "K SVC";
-  return v.toFixed(2) + " SVC";
-};
-const posNum = n => ({1:"GK",2:"DEF",3:"MID",4:"FWD"}[n] || "?");
-const posClr = p => ({GK:"#f59e0b",DEF:"#3b82f6",MID:"#10b981",FWD:"#ef4444"}[p] || "#94a3b8");
-
-function barHTML(val, max=100, color="#a78bfa") {
-  const pct = Math.min(((val||0)/max)*100,100);
-  return `<div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div><span class="bar-val">${val??"—"}</span></div>`;
-}
-function formHTML(form) {
-  if(!form)return "";
-  return `<div class="form-dots">${form.split("").slice(-5).map(c=>`<span class="form-dot form-${c==='W'||c==='D'||c==='L'?c:'X'}">${c}</span>`).join("")}</div>`;
-}
-function sparkSVG(data, w=80, h=24, color="#a78bfa") {
-  if(!data||!data.length||data.every(v=>v===0)) return `<span style="color:#333;font-size:9px">—</span>`;
-  const mn=Math.min(...data),mx=Math.max(...data),rng=mx-mn||1;
-  const pts=data.map((v,i)=>`${(i/(data.length-1))*w},${h-((v-mn)/rng)*h}`).join(" ");
-  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-}
-
-// ---- Data loading ----
-async function loadData() {
-  setState({loading:true, error:null, status:"Connecting to Soccerverse API..."});
-  try {
-    if (state.tab==="players") {
-      const p = {page:state.playerPage, per_page:20, sort_by:state.playerSort, sort_order:state.playerOrder};
-      if (state.playerPos) p.positions = state.playerPos;
-      if (state.playerSearch) {
-        const s = state.playerSearch.trim();
-        if (/^\d+$/.test(s)) p.player_id = s;
-        else p.owned = s;
+  if (typeof workingProxy === 'function') {
+    try {
+      const res = await tryFetch(workingProxy(url), 10000);
+      if (res.ok) {
+        const text = await res.text();
+        return JSON.parse(text);
       }
-      const d = await apiFetch("/players/detailed", p);
-      setState({players:d.items||[], playerTotal:d.total||0, loading:false, status:""});
-    } else if (state.tab==="clubs") {
-      const d = await apiFetch("/clubs/detailed", {page:state.clubPage, per_page:20, sort_by:"avg_player_rating", sort_order:"desc"});
-      setState({clubs:d.items||[], clubTotal:d.total||0, loading:false, status:""});
-    } else if (state.tab==="leagues") {
-      const d = await apiFetch("/leagues", {page:1, per_page:50, sort_by:"market_cap", sort_order:"desc"});
-      setState({leagues:d.items||[], loading:false, status:""});
-    } else if (state.tab==="market") {
-      const d = await apiFetch("/market");
-      setState({market:d, loading:false, status:""});
-    }
-  } catch(e) {
-    if (e.name!=="AbortError") setState({error:e.message, loading:false, status:""});
+    } catch (e) {}
+    // Proxy failed, reset and rediscover
+    workingProxy = null;
   }
-}
 
-async function loadLeagueTable(league) {
-  setState({modal:{type:"league",data:league}, leagueTable:[], loading:true});
+  // Discovery: try direct first
   try {
-    const d = await apiFetch("/league_tables", {league_id:league.league_id});
-    setState({leagueTable:Array.isArray(d)?d:(d.items||[]), loading:false, status:""});
-  } catch(e) { setState({leagueTable:[], loading:false, status:""}); }
+    const res = await tryFetch(url, 4000);
+    if (res.ok) {
+      const data = await res.json();
+      workingProxy = 'direct';
+      return data;
+    }
+  } catch (e) {}
+
+  // Try each proxy
+  for (let i = 0; i < PROXIES.length; i++) {
+    try {
+      const proxyUrl = PROXIES[i](url);
+      const res = await tryFetch(proxyUrl, 8000);
+      if (res.ok) {
+        const text = await res.text();
+        const data = JSON.parse(text);
+        workingProxy = PROXIES[i];
+        return data;
+      }
+    } catch (e) {
+      continue;
+    }
+  }
+
+  throw new Error('Cannot reach Soccerverse API');
 }
 
-// ---- Render ----
-function render() {
-  document.getElementById("tabs").innerHTML = [
-    {id:"players",l:"⚽ Players"},{id:"clubs",l:"🏟 Clubs"},{id:"leagues",l:"🏆 Leagues"},{id:"market",l:"📊 Market"}
-  ].map(t=>`<button class="tab-btn ${state.tab===t.id?'active':''}" onclick="switchTab('${t.id}')">${t.l}</button>`).join("");
-
-  const c = document.getElementById("content");
-  let html = "";
-  if (state.status) html += `<div class="status-bar"><div class="status-dot"></div>${state.status}</div>`;
-  if (state.error) html += `<div class="error-box"><h3>⚠ Connection Error</h3><div>${state.error}</div><div class="hint">The dashboard routes through CORS proxies. Try clicking Retry.</div><button class="retry-btn" onclick="loadData()">🔄 Retry</button></div>`;
-
-  if (state.tab==="players") html += renderPlayers();
-  else if (state.tab==="clubs") html += renderClubs();
-  else if (state.tab==="leagues") html += renderLeagues();
-  else if (state.tab==="market") html += renderMarket();
-  c.innerHTML = `<div class="fade-in">${html}</div>`;
-
-  const mr = document.getElementById("modal-root");
-  if (state.modal) {
-    if (state.modal.type==="player") mr.innerHTML = renderPlayerModal(state.modal.data);
-    else if (state.modal.type==="club") mr.innerHTML = renderClubModal(state.modal.data);
-    else if (state.modal.type==="league") mr.innerHTML = renderLeagueModal();
-    else mr.innerHTML = "";
-  } else mr.innerHTML = "";
+function switchView(view, btn) {
+  currentView = view;
+  currentPage = 1;
+  expandedRow = null;
+  volSortField = null;
+  volSortOrder = 'desc';
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadData();
 }
 
-function renderPlayers() {
-  let h = `<div class="search-bar">
-    <input class="search-input" placeholder="Search by Player ID or agent name..." value="${state.playerSearch}" oninput="debounceSearch(this.value)">
-    <select class="filter-select" onchange="updateFilter('playerPos',this.value)">
-      <option value="" ${!state.playerPos?"selected":""}>All Pos</option>
-      <option value="GK" ${state.playerPos==="GK"?"selected":""}>GK</option>
-      <option value="DEF" ${state.playerPos==="DEF"?"selected":""}>DEF</option>
-      <option value="MID" ${state.playerPos==="MID"?"selected":""}>MID</option>
-      <option value="FWD" ${state.playerPos==="FWD"?"selected":""}>FWD</option>
-    </select>
-    <select class="filter-select" onchange="updateFilter('playerSort',this.value)">
-      ${["rating","value","wages","age","rating_shooting","rating_passing","rating_tackling"].map(s=>`<option value="${s}" ${state.playerSort===s?"selected":""}>${s.replace("rating_","").replace(/^\w/,c=>c.toUpperCase())}</option>`).join("")}
-    </select>
-    <button class="sort-btn" onclick="toggleOrder()">${state.playerOrder==="desc"?"↓ Desc":"↑ Asc"}</button>
-    <span class="count">${fmt(state.playerTotal)} players</span>
-  </div>`;
+function setTimePeriod(period, btn) {
+  timePeriod = period;
+  currentPage = 1;
+  expandedRow = null;
+  volSortField = null;
+  volSortOrder = 'desc';
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadData();
+}
 
-  if (state.loading) return h + `<div class="spinner"><div class="spinner-ring"></div></div>`;
-  if (!state.players.length && !state.error) return h + `<div class="empty"><div class="empty-icon">⚽</div>No players found. Try a different search.</div>`;
+function sortVolume(field) {
+  if (volSortField === field) {
+    volSortOrder = volSortOrder === 'desc' ? 'asc' : 'desc';
+  } else {
+    volSortField = field;
+    volSortOrder = 'desc';
+  }
+  currentPage = 1;
+  expandedRow = null;
+  loadData();
+}
 
-  h += `<div class="player-list">`;
-  for (const p of state.players) {
-    const pc = posClr(posNum(p.position));
-    h += `<div class="player-row" onclick="openPlayer(${p.player_id})">
-      <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,${pc},#1e1b2e);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0">${p.rating}</div>
-      <div class="player-info">
-        <div class="player-name">Player #${p.player_id}</div>
-        <div class="player-meta">${(p.positions||[]).join(" / ")} · Age ${p.age} · ${p.country_id} · Club #${p.club_id}${p.agent_name ? ` · Agent: ${p.agent_name}` : ""}</div>
-        <div class="player-stats-mini">
-          <span>Value: <b style="color:var(--purple2)">${fmtSVC(p.value)}</b></span>
-          <span>Wages: <b>${fmtSVC(p.wages)}</b></span>
-          <span>Shot: <b style="color:var(--red)">${p.rating_shooting??"-"}</b></span>
-          <span>Pass: <b style="color:var(--blue)">${p.rating_passing??"-"}</b></span>
-          <span>Tck: <b style="color:var(--green)">${p.rating_tackling??"-"}</b></span>
+function sortArrow(field) {
+  if (volSortField === field) return volSortOrder === 'desc' ? ' ▼' : ' ▲';
+  return '';
+}
+
+function changePerPage() {
+  perPage = parseInt(document.getElementById('perPageSelect').value);
+  currentPage = 1;
+  loadData();
+}
+
+function showLoader() {
+  document.getElementById('content').innerHTML = `
+    <div class="loader"><div class="spinner"></div><p>Loading leaderboard...</p></div>`;
+}
+
+async function loadMarket() {
+  try {
+    const m = await apiFetch('/market');
+    document.getElementById('msTotalCap').textContent = fmt(m.TotalMarketCap);
+    document.getElementById('ms7dVol').textContent = fmt(m.Total7dayVolume);
+    document.getElementById('msActive').textContent = fmtRaw(m.ActiveUsers);
+    document.getElementById('msTotal').textContent = fmtRaw(m.NumberOfUsers);
+    document.getElementById('msRate').textContent = m.SVC2USDC ? '$' + Number(m.SVC2USDC).toFixed(4) : '—';
+    if (m.SVC2USDC) svcRate = Number(m.SVC2USDC);
+  } catch (e) { console.warn('Market fetch failed', e); }
+}
+
+async function loadData() {
+  showLoader();
+  try {
+    if (currentView === 'richlist') await loadRichList();
+    else if (currentView === 'volume') await loadVolume();
+    else if (currentView === 'managers') await loadManagers();
+  } catch (e) {
+    document.getElementById('content').innerHTML = `
+      <div class="loader"><p style="color:var(--red)">${e.message}</p></div>`;
+  }
+}
+
+function avatarHTML(name, pic) {
+  const initial = name ? name[0].toUpperCase() : '?';
+  if (pic) return `<img src="${pic}" onerror="this.parentElement.textContent='${initial}'" />`;
+  return initial;
+}
+
+function rankHTML(rank) {
+  const cls = rank <= 3 ? `rank-${rank}` : '';
+  const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+  const inner = rank <= 3 ? `<span class="rank-medal">${medal}</span>` : rank;
+  return `<td class="rank-cell ${cls}">${inner}</td>`;
+}
+
+async function loadRichList() {
+  const pp = Math.min(perPage, 50);
+  let url = `/rich_list?page=${currentPage}&per_page=${pp}&sort_by=total_networth&sort_order=desc`;
+  if (searchQuery) url += `&name=${encodeURIComponent(searchQuery)}`;
+  const data = await apiFetch(url);
+  const items = data.items || [];
+  const maxNW = Math.max(...items.map(i => i.total_networth || 0), 1);
+
+  const rows = items.map((u, i) => {
+    const rank = u.rank || ((currentPage - 1) * pp + i + 1);
+    const barPct = ((u.total_networth || 0) / maxNW * 100).toFixed(1);
+    return `<tr onclick="toggleExpand('${u.name}', this)">
+      ${rankHTML(rank)}
+      <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+      <td class="mono green">${fmt(u.total_networth)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+      <td class="mono blue">${fmt(u.balance)}</td>
+      <td class="mono yellow">${fmt(u.club_asset_value)}</td>
+      <td class="mono purple">${fmt(u.player_asset_value)}</td>
+    </tr>`;
+  }).join('');
+
+  renderTable(`<th>#</th><th>User</th><th>Net Worth</th><th>Balance</th><th>Club Assets</th><th>Player Assets</th>`,
+    rows, data.total_pages || 1, data.total || 0);
+}
+
+async function loadVolume() {
+  const pp = Math.min(perPage, 50);
+  const pLabel = timePeriod === 'lifetime' ? 'All' : timePeriod.toUpperCase();
+
+  // Determine which API fields map to this time period
+  let buyField, sellField, totalField;
+  if (timePeriod === '1d') {
+    buyField = 'buy_volume_1_day'; sellField = 'sell_volume_1_day'; totalField = null;
+  } else if (timePeriod === '7d' || timePeriod === '14d') {
+    buyField = 'buy_volume_7_day'; sellField = 'sell_volume_7_day'; totalField = null;
+  } else if (timePeriod === '30d') {
+    buyField = null; sellField = null; totalField = 'total_volume_30_day';
+  } else {
+    buyField = 'buy_total_volume'; sellField = 'sell_total_volume'; totalField = 'total_volume';
+  }
+
+  // Determine sort field
+  let sortField;
+  if (volSortField) {
+    sortField = volSortField;
+  } else if (totalField) {
+    sortField = totalField;
+  } else {
+    sortField = buyField;
+  }
+
+  const sortOrd = volSortField ? volSortOrder : 'desc';
+
+  let url = `/users/detailed?page=${currentPage}&per_page=${pp}&sort_by=${sortField}&sort_order=${sortOrd}`;
+  if (searchQuery) url += `&name_prefix=${encodeURIComponent(searchQuery)}`;
+  const data = await apiFetch(url);
+  const items = data.items || [];
+
+  let headers, rowBuilder;
+
+  if (timePeriod === '30d') {
+    // 30d only has total, not split buy/sell — show total + 7d buy/sell for context
+    const maxVol = Math.max(...items.map(i => i.total_volume_30_day || 0), 1);
+    headers = `<th>#</th><th>User</th>
+      <th style="cursor:pointer" onclick="sortVolume('total_volume_30_day')">Total ${pLabel}${sortArrow('total_volume_30_day')}</th>
+      <th style="cursor:pointer" onclick="sortVolume('buy_volume_7_day')">Buy 7D${sortArrow('buy_volume_7_day')}</th>
+      <th style="cursor:pointer" onclick="sortVolume('sell_volume_7_day')">Sell 7D${sortArrow('sell_volume_7_day')}</th>`;
+    rowBuilder = (u, i) => {
+      const rank = (currentPage - 1) * pp + i + 1;
+      const barPct = ((u.total_volume_30_day || 0) / maxVol * 100).toFixed(1);
+      return `<tr onclick="toggleExpand('${u.name}', this)">
+        ${rankHTML(rank)}
+        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+        <td class="mono green">${fmt(u.total_volume_30_day)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+        <td class="mono blue">${fmt(u.buy_volume_7_day)}</td>
+        <td class="mono red">${fmt(u.sell_volume_7_day)}</td>
+      </tr>`;
+    };
+  } else if (timePeriod === 'lifetime') {
+    const maxVol = Math.max(...items.map(i => i.total_volume || 0), 1);
+    headers = `<th>#</th><th>User</th>
+      <th style="cursor:pointer" onclick="sortVolume('total_volume')">Total ${pLabel}${sortArrow('total_volume')}</th>
+      <th style="cursor:pointer" onclick="sortVolume('buy_total_volume')">Buy ${pLabel}${sortArrow('buy_total_volume')}</th>
+      <th style="cursor:pointer" onclick="sortVolume('sell_total_volume')">Sell ${pLabel}${sortArrow('sell_total_volume')}</th>
+      <th style="cursor:pointer" onclick="sortVolume('total_volume_30_day')">30D Vol${sortArrow('total_volume_30_day')}</th>`;
+    rowBuilder = (u, i) => {
+      const rank = (currentPage - 1) * pp + i + 1;
+      const barPct = ((u.total_volume || 0) / maxVol * 100).toFixed(1);
+      return `<tr onclick="toggleExpand('${u.name}', this)">
+        ${rankHTML(rank)}
+        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+        <td class="mono green">${fmt(u.total_volume)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+        <td class="mono green">${fmt(u.buy_total_volume)}</td>
+        <td class="mono red">${fmt(u.sell_total_volume)}</td>
+        <td class="mono blue">${fmt(u.total_volume_30_day)}</td>
+      </tr>`;
+    };
+  } else {
+    // 1d, 7d, 14d — all have buy/sell split
+    const maxVol = Math.max(...items.map(i => (i[buyField] || 0) + (i[sellField] || 0)), 1);
+    const extraHeader = timePeriod === '14d' ? `<th style="cursor:pointer" onclick="sortVolume('total_volume_30_day')">30D Vol${sortArrow('total_volume_30_day')}</th>` : '';
+    headers = `<th>#</th><th>User</th>
+      <th style="cursor:pointer" onclick="sortVolume('${buyField}')">Buy ${pLabel}${sortArrow(buyField)}</th>
+      <th style="cursor:pointer" onclick="sortVolume('${sellField}')">Sell ${pLabel}${sortArrow(sellField)}</th>
+      <th>Total ${pLabel}</th>${extraHeader}`;
+    rowBuilder = (u, i) => {
+      const rank = (currentPage - 1) * pp + i + 1;
+      const total = (u[buyField] || 0) + (u[sellField] || 0);
+      const barPct = (total / maxVol * 100).toFixed(1);
+      const extra14 = timePeriod === '14d' ? `<td class="mono yellow">${fmt(u.total_volume_30_day)}</td>` : '';
+      return `<tr onclick="toggleExpand('${u.name}', this)">
+        ${rankHTML(rank)}
+        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+        <td class="mono green">${fmt(u[buyField])}</td>
+        <td class="mono red">${fmt(u[sellField])}</td>
+        <td class="mono blue">${fmt(total)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+        ${extra14}
+      </tr>`;
+    };
+  }
+
+  const rows = items.map(rowBuilder).join('');
+  renderTable(headers, rows, data.total_pages || 1, data.total || 0);
+}
+
+async function loadManagers() {
+  const pp = Math.min(perPage, 50);
+  let url = `/best_managers?page=${currentPage}&per_page=${pp}&sort_by=rank_a_ranking&sort_order=asc`;
+  if (searchQuery) url += `&name=${encodeURIComponent(searchQuery)}`;
+  const data = await apiFetch(url);
+  const items = data.items || [];
+
+  const rows = items.map((u, i) => {
+    const rank = u.rank_a_ranking || ((currentPage - 1) * pp + i + 1);
+    return `<tr>
+      ${rankHTML(rank)}
+      <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+      <td class="mono green">${fmtRaw(u.rank_a)}</td>
+      <td class="mono blue">${u.rank_a_ranking || '—'}</td>
+      <td class="mono yellow">${fmtRaw(u.rank_b)}</td>
+      <td class="mono purple">${u.rank_b_ranking || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  renderTable(`<th>#</th><th>Manager</th><th>Rating A</th><th>Rank A</th><th>Rating B</th><th>Rank B</th>`,
+    rows, data.total_pages || 1, data.total || 0);
+}
+
+function renderTable(headHTML, rowsHTML, totalPages, totalItems) {
+  document.getElementById('content').innerHTML = `
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table><thead><tr>${headHTML}</tr></thead><tbody id="tableBody">${rowsHTML}</tbody></table>
+      </div>
+      <div class="pagination">
+        <button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>← Prev</button>
+        <span class="page-info">Page ${currentPage} of ${totalPages} (${fmtRaw(totalItems)} total)</span>
+        <button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Next →</button>
+      </div>
+    </div>`;
+}
+
+function goPage(p) {
+  if (p < 1) return;
+  currentPage = p;
+  expandedRow = null;
+  loadData();
+  window.scrollTo({ top: 300, behavior: 'smooth' });
+}
+
+// Format SVC value with USDC in brackets
+function fmtWithUsdc(rawVal) {
+  const svc = (rawVal || 0) / 10000;
+  const svcStr = fmtSvc(svc);
+  if (svcRate > 0) {
+    const usdc = svc * svcRate;
+    return `${svcStr} SVC <span style="color:var(--text-muted);font-size:11px">($${fmtSvc(usdc)})</span>`;
+  }
+  return `${svcStr} SVC`;
+}
+
+function fmtSvc(n) {
+  if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+async function toggleExpand(name, rowEl) {
+  const existing = document.querySelector('.expand-row');
+  if (existing) {
+    if (expandedRow === name) { existing.remove(); expandedRow = null; return; }
+    existing.remove();
+  }
+  expandedRow = name;
+  const colCount = rowEl.cells.length;
+
+  const loadRow = document.createElement('tr');
+  loadRow.className = 'expand-row';
+  loadRow.innerHTML = `<td colspan="${colCount}"><div class="expand-content" style="justify-items:center"><p style="color:var(--text-dim);font-size:13px;">Loading...</p></div></td>`;
+  rowEl.after(loadRow);
+
+  try {
+    const [richRes, earningsRes, detailedRes] = await Promise.allSettled([
+      apiFetch(`/rich_list?name=${encodeURIComponent(name)}&per_page=5`),
+      apiFetch(`/user_balance_sheet/earnings?name=${encodeURIComponent(name)}`),
+      apiFetch(`/users/detailed?names=${encodeURIComponent(name)}&per_page=5`)
+    ]);
+
+    const rich = richRes.status === 'fulfilled' ? richRes.value?.items?.[0] : null;
+    const earn = earningsRes.status === 'fulfilled' ? earningsRes.value : null;
+    const userD = detailedRes.status === 'fulfilled' ? detailedRes.value?.items?.[0] : null;
+
+    let html = '<div class="expand-content" style="grid-template-columns:1fr;">';
+
+    // ── Spent / Sold section ──
+    if (userD) {
+      // Pick the right buy/sell fields based on time period
+      let buyVal, sellVal, periodLabel;
+      if (timePeriod === '1d') {
+        buyVal = userD.buy_volume_1_day || 0;
+        sellVal = userD.sell_volume_1_day || 0;
+        periodLabel = '1D';
+      } else if (timePeriod === '7d') {
+        buyVal = userD.buy_volume_7_day || 0;
+        sellVal = userD.sell_volume_7_day || 0;
+        periodLabel = '7D';
+      } else if (timePeriod === '30d' || timePeriod === '14d') {
+        // API doesn't have 14d buy/sell split, show 30d
+        buyVal = null;
+        sellVal = null;
+        periodLabel = '30D';
+      } else {
+        buyVal = userD.buy_total_volume || 0;
+        sellVal = userD.sell_total_volume || 0;
+        periodLabel = 'Lifetime';
+      }
+
+      html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;width:100%;">`;
+
+      // Period buy/sell
+      if (buyVal !== null) {
+        const net = sellVal - buyVal;
+        html += `
+          <div class="expand-stat">
+            <div class="es-label">Spent (${periodLabel})</div>
+            <div class="es-val red">${fmtWithUsdc(buyVal)}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="es-label">Sold (${periodLabel})</div>
+            <div class="es-val green">${fmtWithUsdc(sellVal)}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="es-label">Net P/L (${periodLabel})</div>
+            <div class="es-val ${net >= 0 ? 'green' : 'red'}">${net >= 0 ? '▲ +' : '▼ '}${fmtWithUsdc(net)}</div>
+          </div>`;
+      }
+
+      // Always show lifetime totals if not already showing
+      if (timePeriod !== 'lifetime') {
+        const lifeBuy = userD.buy_total_volume || 0;
+        const lifeSell = userD.sell_total_volume || 0;
+        const lifeNet = lifeSell - lifeBuy;
+        html += `
+          <div class="expand-stat">
+            <div class="es-label">Spent (Lifetime)</div>
+            <div class="es-val red">${fmtWithUsdc(lifeBuy)}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="es-label">Sold (Lifetime)</div>
+            <div class="es-val green">${fmtWithUsdc(lifeSell)}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="es-label">Net P/L (Lifetime)</div>
+            <div class="es-val ${lifeNet >= 0 ? 'green' : 'red'}">${lifeNet >= 0 ? '▲ +' : '▼ '}${fmtWithUsdc(lifeNet)}</div>
+          </div>`;
+      }
+
+      html += `</div>`;
+    }
+
+    // ── Separator ──
+    html += `<div style="border-top:1px solid var(--border);margin:12px 0;"></div>`;
+
+    // ── Net worth / balance row ──
+    html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;width:100%;">`;
+
+    if (rich) {
+      html += `
+        <div class="expand-stat"><div class="es-label">Net Worth</div><div class="es-val green">${fmtWithUsdc(rich.total_networth)}</div></div>
+        <div class="expand-stat"><div class="es-label">Balance</div><div class="es-val blue">${fmtWithUsdc(rich.balance)}</div></div>
+        <div class="expand-stat"><div class="es-label">Club Assets</div><div class="es-val yellow">${fmtWithUsdc(rich.club_asset_value)}</div></div>
+        <div class="expand-stat"><div class="es-label">Player Assets</div><div class="es-val purple">${fmtWithUsdc(rich.player_asset_value)}</div></div>
+        <div class="expand-stat"><div class="es-label">Rich Rank</div><div class="es-val green">#${rich.rank || '—'}</div></div>`;
+    }
+
+    if (earn) {
+      const periodMap = {
+        '1d': earn.earnings_last_match_day,
+        '7d': earn.earnings_7d,
+        '14d': earn.earnings_14d,
+        '30d': earn.earnings_30d,
+        'lifetime': earn.earnings_30d
+      };
+      const ep = periodMap[timePeriod] || earn.earnings_7d || {};
+      const pLabel = timePeriod === 'lifetime' ? '30D' : timePeriod.toUpperCase();
+      html += `<div class="expand-stat"><div class="es-label">Earned ${pLabel}</div><div class="es-val green">${fmtWithUsdc(ep.svc || 0)}</div></div>`;
+    }
+
+    html += `</div></div>`;
+
+    // Add the advanced P/L arrow button
+    const arrowData = JSON.stringify({
+      name: name,
+      rich: rich,
+      userD: userD,
+      earn: earn
+    }).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+
+    html += `<div style="text-align:right;margin-top:4px;">
+      <button class="detail-arrow-btn" onclick="event.stopPropagation(); openSidePanel('${name}')" title="Advanced P/L Breakdown">→</button>
+    </div>`;
+
+    html += `</div>`;
+
+    // Store data for side panel
+    window._lastExpandData = { name, rich, userD, earn };
+
+    loadRow.innerHTML = `<td colspan="${colCount}">${html}</td>`;
+  } catch (e) {
+    loadRow.innerHTML = `<td colspan="${colCount}"><div class="expand-content"><p style="color:var(--red);font-size:13px;">Could not load details</p></div></td>`;
+  }
+}
+
+function openSidePanel(name) {
+  const d = window._lastExpandData;
+  if (!d) return;
+
+  const { rich, userD, earn } = d;
+  const panel = document.getElementById('sidePanel');
+  const overlay = document.getElementById('spOverlay');
+  const body = document.getElementById('spBody');
+
+  document.getElementById('spTitle').textContent = `${name} — Advanced P/L`;
+
+  let html = '';
+
+  // ── True P/L (including holdings) ──
+  if (rich && userD) {
+    const totalSpent = (userD.buy_total_volume || 0) / 10000;
+    const totalSold = (userD.sell_total_volume || 0) / 10000;
+    const netWorth = (rich.total_networth || 0) / 10000;
+    const balance = (rich.balance || 0) / 10000;
+    const clubAssets = (rich.club_asset_value || 0) / 10000;
+    const playerAssets = (rich.player_asset_value || 0) / 10000;
+
+    const tradePL = totalSold - totalSpent;
+    const holdings = clubAssets + playerAssets;
+    const truePL = tradePL + holdings;
+
+    html += `<div class="sp-section">
+      <div class="sp-section-title">True P/L (Including Holdings)</div>
+      <div class="sp-big-stat">
+        <div class="sp-big-label">True Overall P/L</div>
+        <div class="sp-big-val ${truePL >= 0 ? 'green' : 'red'}">${truePL >= 0 ? '▲' : '▼'} ${fmtSvc(Math.abs(truePL))} SVC</div>
+        <div class="sp-big-sub">${svcRate > 0 ? (truePL >= 0 ? '+' : '-') + '$' + fmtSvc(Math.abs(truePL * svcRate)) + ' USDC' : ''}</div>
+      </div>
+    </div>`;
+
+    // ── Breakdown ──
+    html += `<div class="sp-section">
+      <div class="sp-section-title">Full Breakdown</div>
+      <div class="sp-row">
+        <span class="sp-label">Total Spent (Buys)</span>
+        <span class="sp-val red">${fmtSvc(totalSpent)} SVC${svcRate > 0 ? ' <span style="color:var(--text-muted);font-size:11px">($' + fmtSvc(totalSpent * svcRate) + ')</span>' : ''}</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Total Sold</span>
+        <span class="sp-val green">${fmtSvc(totalSold)} SVC${svcRate > 0 ? ' <span style="color:var(--text-muted);font-size:11px">($' + fmtSvc(totalSold * svcRate) + ')</span>' : ''}</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Trade P/L (Realised)</span>
+        <span class="sp-val ${tradePL >= 0 ? 'green' : 'red'}">${tradePL >= 0 ? '▲ +' : '▼ '}${fmtSvc(Math.abs(tradePL))} SVC</span>
+      </div>
+      <div style="border-top:1px solid var(--border);margin:8px 0;"></div>
+      <div class="sp-row">
+        <span class="sp-label">Club Assets (Unsold)</span>
+        <span class="sp-val yellow">${fmtSvc(clubAssets)} SVC</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Player Assets (Unsold)</span>
+        <span class="sp-val purple">${fmtSvc(playerAssets)} SVC</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Total Holdings</span>
+        <span class="sp-val blue">${fmtSvc(holdings)} SVC</span>
+      </div>
+      <div style="border-top:1px solid var(--border);margin:8px 0;"></div>
+      <div class="sp-row">
+        <span class="sp-label">Current Balance</span>
+        <span class="sp-val blue">${fmtSvc(balance)} SVC</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Total Net Worth</span>
+        <span class="sp-val green">${fmtSvc(netWorth)} SVC</span>
+      </div>
+      <div style="border-top:1px solid var(--border);margin:8px 0;"></div>
+      <div class="sp-row">
+        <span class="sp-label" style="font-weight:700;color:var(--text)">True P/L</span>
+        <span class="sp-val ${truePL >= 0 ? 'green' : 'red'}" style="font-size:16px">${truePL >= 0 ? '▲ +' : '▼ '}${fmtSvc(Math.abs(truePL))} SVC</span>
+      </div>
+    </div>`;
+
+    // ── Comparison ──
+    html += `<div class="sp-section">
+      <div class="sp-section-title">Realised vs True P/L</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="sp-big-stat">
+          <div class="sp-big-label">Trade P/L</div>
+          <div class="sp-big-val ${tradePL >= 0 ? 'green' : 'red'}" style="font-size:20px">${tradePL >= 0 ? '▲' : '▼'} ${fmtSvc(Math.abs(tradePL))}</div>
+          <div class="sp-big-sub">Sold − Spent</div>
+        </div>
+        <div class="sp-big-stat">
+          <div class="sp-big-label">True P/L</div>
+          <div class="sp-big-val ${truePL >= 0 ? 'green' : 'red'}" style="font-size:20px">${truePL >= 0 ? '▲' : '▼'} ${fmtSvc(Math.abs(truePL))}</div>
+          <div class="sp-big-sub">Trade P/L + Holdings</div>
         </div>
       </div>
-      <div class="player-sparkline">${sparkSVG(p.last_7days,60,22)}</div>
+      ${tradePL < 0 && truePL > 0 ? `<div style="background:var(--accent-dim);border:1px solid rgba(34,217,127,0.2);border-radius:10px;padding:14px 18px;margin-top:12px;">
+        <p style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px;">💡 Hidden Profit</p>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">This user looks like they're at a loss based on trades alone (${fmtSvc(Math.abs(tradePL))} SVC down), but their unsold holdings are worth <strong style="color:var(--accent)">${fmtSvc(holdings)} SVC</strong>, which more than covers the trade loss. They're actually <strong style="color:var(--accent)">up ${fmtSvc(Math.abs(truePL))} SVC</strong> overall.</p>
+      </div>` : ''}
+      ${tradePL >= 0 && truePL >= 0 ? `<div style="background:var(--accent-dim);border:1px solid rgba(34,217,127,0.2);border-radius:10px;padding:14px 18px;margin-top:12px;">
+        <p style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px;">📈 Winning on All Fronts</p>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">This user is profiting from trades AND sitting on <strong style="color:var(--accent)">${fmtSvc(holdings)} SVC</strong> worth of unsold assets on top.</p>
+      </div>` : ''}
+      ${truePL < 0 ? `<div style="background:var(--red-dim);border:1px solid rgba(255,77,106,0.2);border-radius:10px;padding:14px 18px;margin-top:12px;">
+        <p style="font-size:13px;color:var(--red);font-weight:600;margin-bottom:4px;">📉 Overall Loss</p>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">Even including ${fmtSvc(holdings)} SVC in unsold holdings, this user is still down <strong style="color:var(--red)">${fmtSvc(Math.abs(truePL))} SVC</strong> overall.</p>
+      </div>` : ''}
     </div>`;
+
+    // ── Formula explanation ──
+    html += `<div class="sp-formula">
+      <div class="sp-formula-title">📐 How this is calculated</div>
+      <code><span class="sp-highlight">Trade P/L</span> = Total Sold − Total Spent<br>= ${fmtSvc(totalSold)} − ${fmtSvc(totalSpent)} = <span class="${tradePL >= 0 ? 'sp-highlight' : 'sp-highlight-red'}">${tradePL >= 0 ? '+' : ''}${fmtSvc(tradePL)}</span></code>
+      <p>This only counts completed trades — SVC that actually left or entered your wallet. If you bought shares but haven't sold them, it shows as a "loss" even though you still own the assets.</p>
+      <code><span class="sp-highlight">True P/L</span> = Trade P/L + Holdings<br>= ${fmtSvc(tradePL)} + ${fmtSvc(holdings)}<br>= (${fmtSvc(totalSold)} − ${fmtSvc(totalSpent)}) + (${fmtSvc(clubAssets)} + ${fmtSvc(playerAssets)})<br>= <span class="${truePL >= 0 ? 'sp-highlight' : 'sp-highlight-red'}">${truePL >= 0 ? '+' : ''}${fmtSvc(truePL)}</span></code>
+      <p>This takes your trade P/L and adds back the current value of all your unsold club and player shares. It gives the <span class="sp-highlight">true picture</span> of whether you're up or down overall.</p>
+      <p>Think of it like stocks: if you spend 100K buying shares and haven't sold any, your Trade P/L is −100K. But if those shares are now worth 150K, your True P/L is actually <span class="sp-highlight">+50K</span>.</p>
+    </div>`;
+  } else {
+    html += `<p style="color:var(--text-dim);padding:20px;">Could not load advanced data for this user.</p>`;
   }
-  h += `</div>`;
-  h += paginationHTML(state.playerPage, state.playerTotal, 20, "setPlayerPage");
-  return h;
+
+  body.innerHTML = html;
+  panel.classList.add('open');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-function renderPlayerModal(p) {
-  const pc = posClr(posNum(p.position));
-  const ratings = [["Overall",p.rating,"#a78bfa"],["Shooting",p.rating_shooting,"#ef4444"],["Passing",p.rating_passing,"#3b82f6"],["Tackling",p.rating_tackling,"#10b981"],["GK",p.rating_gk,"#f59e0b"],["Stamina",p.rating_stamina,"#06b6d4"],["Aggression",p.rating_aggression,"#f97316"]];
-  const payout = p.wages != null ? ((Number(p.wages) / 10000) * 0.002) : null;
-  const payoutStr = payout != null ? payout.toFixed(2) + " SVC" : "—";
-  const stats = [["Value",fmtSVC(p.value)],["Wages",fmtSVC(p.wages)],["Payout (0.2%)",payoutStr],["Contract",p.contract],["Fitness",p.fitness],["Morale",p.morale],["Form",p.form,true],["Yellow Cards",p.yellow_cards],["Red Cards",p.red_cards],["Last Price",fmtSVC(p.last_price)],["7d Volume",fmtSVC(p.volume_7_day)],["1d Volume",fmtSVC(p.volume_1_day)]];
+function closeSidePanel() {
+  document.getElementById('sidePanel').classList.remove('open');
+  document.getElementById('spOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
 
-  return `<div class="modal-overlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div style="display:flex;gap:20px;align-items:center;margin-bottom:24px">
-      <div style="width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,${pc},#1e1b2e);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;border:2px solid rgba(255,255,255,.1);flex-shrink:0">${p.rating}</div>
+// ── Mode toggle ──
+let currentMode = 'leaderboard';
+let tradesLoaded = false;
+let tradeFilter = 'all';
+let allTrades = [];
+
+function showMode(mode) {
+  currentMode = mode;
+  const lb = document.getElementById('leaderboardView');
+  const tf = document.getElementById('tradesFeed');
+  const btnLB = document.getElementById('toggleLeaderboard');
+  const btnTF = document.getElementById('toggleTrades');
+
+  if (mode === 'leaderboard') {
+    lb.classList.remove('hidden');
+    tf.classList.remove('visible');
+    btnLB.classList.add('active');
+    btnTF.classList.remove('active');
+  } else {
+    lb.classList.add('hidden');
+    tf.classList.add('visible');
+    btnLB.classList.remove('active');
+    btnTF.classList.add('active');
+    if (!tradesLoaded) loadTrades();
+  }
+}
+
+function setTradeFilter(filter, btn) {
+  tradeFilter = filter;
+  document.querySelectorAll('.trades-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTrades();
+}
+
+async function searchTrades() {
+  const val = document.getElementById('tradeSearchInput').value.trim();
+  if (!val) { loadTrades(); return; }
+  
+  document.getElementById('tradesContent').innerHTML = `<div class="loader"><div class="spinner"></div><p>Searching trades for ${val}...</p></div>`;
+  try {
+    const data = await apiFetch(`/share_trade_history?per_page=50&name=${encodeURIComponent(val)}`);
+    allTrades = (data.items || []).sort((a, b) => (b.unix_time || b.id || 0) - (a.unix_time || a.id || 0));
+    renderTrades();
+  } catch (e) {
+    document.getElementById('tradesContent').innerHTML = `<div class="loader"><p style="color:var(--red)">Failed: ${e.message}</p></div>`;
+  }
+}
+
+// Enter key for trade search
+document.addEventListener('DOMContentLoaded', () => {
+  const tsInput = document.getElementById('tradeSearchInput');
+  if (tsInput) tsInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchTrades(); });
+});
+
+function timeAgo(timeVal) {
+  let then;
+  if (typeof timeVal === 'number') {
+    then = new Date(timeVal * 1000); // unix timestamp
+  } else {
+    then = new Date(timeVal);
+  }
+  const now = new Date();
+  const secs = Math.floor((now - then) / 1000);
+  if (isNaN(secs) || secs < 0) return '';
+  if (secs < 60) return secs + 's ago';
+  if (secs < 3600) return Math.floor(secs / 60) + 'm ago';
+  if (secs < 86400) return Math.floor(secs / 3600) + 'h ago';
+  return Math.floor(secs / 86400) + 'd ago';
+}
+
+let tradeRefreshTimer = null;
+
+async function manualRefreshTrades() {
+  if (!allTrades.length) {
+    // First load — do the full thing
+    loadTrades();
+    return;
+  }
+  
+  // Quick refresh — just check the most active recent users for new trades
+  const el = document.getElementById('tradesCount');
+  if (el) el.textContent = `Refreshing...`;
+  
+  try {
+    const [vol1d, vol1dSell] = await Promise.allSettled([
+      apiFetch('/users/detailed?per_page=50&sort_by=buy_volume_1_day&sort_order=desc'),
+      apiFetch('/users/detailed?per_page=50&sort_by=sell_volume_1_day&sort_order=desc')
+    ]);
+    
+    const names = new Set();
+    names.add('amazmoGIANTS');
+    [vol1d, vol1dSell].forEach(r => {
+      if (r.status === 'fulfilled') (r.value.items || []).forEach(u => { if (u.name) names.add(u.name); });
+    });
+    
+    const searchVal = document.getElementById('tradeSearchInput').value.trim();
+    if (searchVal) names.add(searchVal);
+    
+    const userList = [...names].slice(0, 30);
+    
+    const results = await Promise.allSettled(
+      userList.map(name => apiFetch(`/share_trade_history?per_page=20&name=${encodeURIComponent(name)}`))
+    );
+    
+    let combined = [...allTrades]; // keep existing trades
+    for (const r of results) {
+      if (r.status === 'fulfilled' && r.value && r.value.items) {
+        combined = [...combined, ...r.value.items];
+      }
+    }
+    
+    // Deduplicate
+    const seen = new Set();
+    allTrades = combined.filter(t => {
+      if (seen.has(t.id)) return false;
+      seen.add(t.id);
+      return true;
+    });
+    
+    allTrades.sort((a, b) => (b.unix_time || b.id || 0) - (a.unix_time || a.id || 0));
+    
+    const cutoff = Math.floor(Date.now() / 1000) - (5 * 24 * 60 * 60);
+    allTrades = allTrades.filter(t => (t.unix_time || 0) >= cutoff);
+    
+    renderTrades();
+    
+    if (el) {
+      el.style.color = 'var(--accent)';
+      el.textContent = `✅ Refreshed! Showing ${allTrades.length} trades`;
+      setTimeout(() => { el.style.color = ''; }, 3000);
+    }
+    
+    nextRefreshAt = Date.now() + 5 * 60 * 1000;
+  } catch (e) {
+    if (el) {
+      el.style.color = 'var(--red)';
+      el.textContent = `Refresh failed — showing cached trades (${allTrades.length})`;
+      setTimeout(() => { el.style.color = ''; }, 3000);
+    }
+  }
+}
+
+async function loadTrades() {
+  tradesLoaded = true;
+  document.getElementById('tradesContent').innerHTML = `<div class="loader"><div class="spinner"></div><p>Loading latest trades...</p></div>`;
+  try {
+    // Step 1: Get active usernames from just 2 queries (most efficient)
+    const [vol1d, vol30d] = await Promise.allSettled([
+      apiFetch('/users/detailed?per_page=50&sort_by=buy_volume_1_day&sort_order=desc'),
+      apiFetch('/users/detailed?per_page=50&sort_by=total_volume_30_day&sort_order=desc'),
+    ]);
+    
+    const names = new Set();
+    names.add('amazmoGIANTS');
+    [vol1d, vol30d].forEach(r => {
+      if (r.status === 'fulfilled') (r.value.items || []).forEach(u => { if (u.name) names.add(u.name); });
+    });
+    
+    const searchVal = document.getElementById('tradeSearchInput').value.trim();
+    if (searchVal) names.add(searchVal);
+    
+    const userList = [...names];
+    
+    document.getElementById('tradesContent').innerHTML = `<div class="loader"><div class="spinner"></div><p>Loading trades from ${userList.length} users...</p></div>`;
+    
+    // Step 2: Fetch trades in small batches with delay to avoid rate limits
+    const batchSize = 5;
+    let combined = [];
+    
+    for (let i = 0; i < userList.length; i += batchSize) {
+      const batch = userList.slice(i, i + batchSize);
+      const results = await Promise.allSettled(
+        batch.map(name => apiFetch(`/share_trade_history?per_page=20&name=${encodeURIComponent(name)}`))
+      );
+      for (const r of results) {
+        if (r.status === 'fulfilled' && r.value && r.value.items) {
+          combined = [...combined, ...r.value.items];
+        }
+      }
+      // Small delay between batches to avoid rate limits
+      if (i + batchSize < userList.length) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
+    
+    // Deduplicate
+    const seen = new Set();
+    allTrades = combined.filter(t => {
+      if (seen.has(t.id)) return false;
+      seen.add(t.id);
+      return true;
+    });
+    
+    // Sort newest first
+    allTrades.sort((a, b) => (b.unix_time || b.id || 0) - (a.unix_time || a.id || 0));
+    
+    // Filter to last 28 days only
+    const cutoff = Math.floor(Date.now() / 1000) - (5 * 24 * 60 * 60);
+    allTrades = allTrades.filter(t => (t.unix_time || 0) >= cutoff);
+    
+    if (!allTrades.length) throw new Error('No trades found');
+    renderTrades();
+    startTradeAutoRefresh();
+  } catch (e) {
+    document.getElementById('tradesContent').innerHTML = `<div class="loader"><p style="color:var(--red)">Could not load trades: ${e.message}</p></div>`;
+  }
+}
+
+function startTradeAutoRefresh() {
+  if (tradeRefreshTimer) clearInterval(tradeRefreshTimer);
+  tradeRefreshTimer = setInterval(() => {
+    if (currentMode === 'trades') {
+      silentRefreshTrades();
+    }
+  }, 5 * 60 * 1000); // every 5 minutes
+  updateRefreshCountdown();
+}
+
+let countdownTimer = null;
+let nextRefreshAt = 0;
+
+function updateRefreshCountdown() {
+  nextRefreshAt = Date.now() + 5 * 60 * 1000;
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    const secs = Math.max(0, Math.round((nextRefreshAt - Date.now()) / 1000));
+    const el = document.getElementById('tradesCount');
+    if (el && currentMode === 'trades') {
+      const mins = Math.floor(secs / 60);
+      const s = secs % 60;
+      el.textContent = `Showing ${allTrades.length} trades · Auto-refresh in ${mins}:${s.toString().padStart(2, '0')}`;
+    }
+  }, 1000);
+}
+
+async function silentRefreshTrades() {
+  try {
+    const [vol1dBuy, vol1dSell] = await Promise.allSettled([
+      apiFetch('/users/detailed?per_page=20&sort_by=buy_volume_1_day&sort_order=desc'),
+      apiFetch('/users/detailed?per_page=20&sort_by=sell_volume_1_day&sort_order=desc')
+    ]);
+    
+    const names = new Set();
+    names.add('amazmoGIANTS'); // always include
+    [vol1dBuy, vol1dSell].forEach(r => {
+      if (r.status === 'fulfilled') (r.value.items || []).forEach(u => { if (u.name) names.add(u.name); });
+    });
+    
+    const searchVal = document.getElementById('tradeSearchInput').value.trim();
+    if (searchVal) names.add(searchVal);
+    
+    const userList = [...names].slice(0, 20);
+    
+    const results = await Promise.allSettled(
+      userList.map(name => apiFetch(`/share_trade_history?per_page=50&name=${encodeURIComponent(name)}`))
+    );
+    
+    let combined = [];
+    for (const r of results) {
+      if (r.status === 'fulfilled' && r.value && r.value.items) {
+        combined = [...combined, ...r.value.items];
+      }
+    }
+    
+    const seen = new Set();
+    const newTrades = combined.filter(t => {
+      if (seen.has(t.id)) return false;
+      seen.add(t.id);
+      return true;
+    });
+    newTrades.sort((a, b) => (b.unix_time || b.id || 0) - (a.unix_time || a.id || 0));
+    
+    // Filter to last 20 days only
+    const cutoff = Math.floor(Date.now() / 1000) - (5 * 24 * 60 * 60);
+    const filteredNew = newTrades.filter(t => (t.unix_time || 0) >= cutoff);
+    
+    // Check for new trades
+    const oldIds = new Set(allTrades.map(t => t.id));
+    const brandNew = filteredNew.filter(t => !oldIds.has(t.id));
+    
+    if (brandNew.length > 0) {
+      allTrades = filteredNew;
+      renderTrades();
+      // Flash the count to show new trades arrived
+      const el = document.getElementById('tradesCount');
+      if (el) {
+        el.style.color = 'var(--accent)';
+        el.textContent = `🟢 ${brandNew.length} new trade${brandNew.length > 1 ? 's' : ''} found! Showing ${allTrades.length} total`;
+        setTimeout(() => { el.style.color = ''; }, 3000);
+      }
+    }
+    
+    // Reset countdown
+    nextRefreshAt = Date.now() + 5 * 60 * 1000;
+  } catch (e) {
+    console.warn('Silent refresh failed', e);
+  }
+}
+
+function renderTrades() {
+  let trades = allTrades;
+  if (tradeFilter === 'buy') trades = trades.filter(t => t.market_buy === true);
+  if (tradeFilter === 'sell') trades = trades.filter(t => t.market_buy === false);
+
+  document.getElementById('tradesCount').textContent = `Showing ${trades.length} recent trades`;
+
+  if (!trades.length) {
+    document.getElementById('tradesContent').innerHTML = `<div class="loader"><p style="color:var(--text-dim)">No trades found</p></div>`;
+    return;
+  }
+
+  const html = trades.map(t => {
+    const buyer = t.buyer || 'Unknown';
+    const seller = t.seller || 'Unknown';
+    const price = t.price || 0;
+    const qty = t.num || 1;
+    const total = price * qty;
+    const shareType = t.share_type || 'asset';
+    const shareId = t.share_id || '?';
+    const typeLabel = shareType === 'club' ? '🏟️' : shareType === 'player' ? '⚽' : '📦';
+    const typeName = shareType.charAt(0).toUpperCase() + shareType.slice(1);
+    const time = t.time || '';
+    const isBuy = t.market_buy;
+
+    const buyerPic = t.buyer_profile_pic
+      ? `<img src="${t.buyer_profile_pic}" onerror="this.parentElement.textContent='${buyer[0]}'" style="width:24px;height:24px;border-radius:6px;"/>`
+      : `<span style="width:24px;height:24px;border-radius:6px;background:var(--accent-dim);color:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${buyer[0]}</span>`;
+
+    const sellerPic = t.seller_profile_pic
+      ? `<img src="${t.seller_profile_pic}" onerror="this.parentElement.textContent='${seller[0]}'" style="width:24px;height:24px;border-radius:6px;"/>`
+      : `<span style="width:24px;height:24px;border-radius:6px;background:var(--red-dim);color:var(--red);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${seller[0]}</span>`;
+
+    return `<div class="trade-card">
+      <div class="trade-icon ${isBuy ? 'buy' : 'sell'}">${typeLabel}</div>
+      <div class="trade-body">
+        <div class="trade-headline">
+          ${buyerPic} <span class="t-user">${buyer}</span>
+          <span class="t-action-buy"> bought </span>
+          <span class="t-asset">${qty} ${qty > 1 ? 'shares' : 'share'} in ${typeName} #${shareId}</span>
+          <span> from </span>
+          ${sellerPic} <span class="t-user">${seller}</span>
+        </div>
+        <div class="trade-meta">
+          <span>💎 Price: ${fmt(price)} SVC per share</span>
+          <span>📦 Qty: ${qty}</span>
+          ${isBuy ? '<span style="color:var(--accent)">⚡ Market Buy</span>' : '<span style="color:var(--text-muted)">📋 Limit</span>'}
+        </div>
+      </div>
       <div>
-        <h2 style="margin:0 0 6px">Player #${p.player_id}</h2>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          ${(p.positions||[]).map(pos=>{const c=posClr(pos);return `<span style="padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${c}22;color:${c};border:1px solid ${c}44">${pos}</span>`;}).join("")}
-          <span style="font-size:11px;color:var(--text2)">Age ${p.age} · ${p.country_id} · Club #${p.club_id}</span>
-        </div>
+        <div style="font-size:10px;color:var(--text-muted);text-align:right;margin-bottom:2px;">TOTAL SPENT</div>
+        <div class="trade-price green">${fmt(total)} <span style="font-size:11px;color:var(--text-muted)">SVC</span></div>
+        <div class="trade-time">${time ? timeAgo(time) : ''}</div>
       </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-      ${ratings.map(([l,v,c])=>`<div><div class="stat-label">${l}</div>${barHTML(v,100,c)}</div>`).join("")}
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
-      ${stats.map(([l,v,isForm])=>`<div class="stat-box"><div class="stat-label">${l}</div>${isForm?formHTML(v):`<div class="stat-val">${v??"—"}</div>`}</div>`).join("")}
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <span class="stat-label">7d Vol</span>${sparkSVG(p.last_7days,110,26)}
-      <span class="stat-label" style="margin-left:8px">7d Price</span>${sparkSVG(p.last_7days_price,110,26,"#10b981")}
-    </div>
-    ${p.agent_name?`<div style="margin-top:16px;font-size:12px;color:var(--text2)">Agent: <span style="color:var(--purple2);font-weight:600">${p.agent_name}</span></div>`:""}
-  </div></div>`;
-}
-
-function renderClubs() {
-  if (state.loading) return `<div class="spinner"><div class="spinner-ring"></div></div>`;
-  if (!state.clubs.length&&!state.error) return `<div class="empty"><div class="empty-icon">🏟</div>No clubs loaded.</div>`;
-  let h = `<div class="grid grid-clubs">`;
-  for (const c of state.clubs) {
-    h += `<div class="card" onclick="openClub(${c.club_id})">
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
-        <div><div style="font-weight:700;font-size:16px;color:#f1f0f5">Club #${c.club_id}</div><div style="font-size:11px;color:var(--text2)">${c.country_id} · Div ${c.division}</div></div>
-        <div style="padding:4px 10px;border-radius:8px;background:rgba(167,139,250,.13);color:var(--purple);font-size:18px;font-weight:800">${c.avg_player_rating?.toFixed(1)??"—"}</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:11px;margin-bottom:12px">
-        <div><div style="color:var(--text3);font-size:9px;text-transform:uppercase">Balance</div><div style="color:var(--green);font-weight:600">${fmtSVC(c.balance)}</div></div>
-        <div><div style="color:var(--text3);font-size:9px;text-transform:uppercase">Wages</div><div style="color:var(--yellow);font-weight:600">${fmtSVC(c.total_wages)}</div></div>
-        <div><div style="color:var(--text3);font-size:9px;text-transform:uppercase">Fans</div><div style="color:var(--text);font-weight:600">${fmt(c.fans_current)}</div></div>
-      </div>
-      <div style="display:flex;gap:10px;align-items:center">${sparkSVG(c.last_7days,100,24)}${c.manager_name?`<span style="font-size:10px;color:var(--text3);margin-left:auto">🧑‍💼 ${c.manager_name}</span>`:""}</div>
     </div>`;
-  }
-  h += `</div>`;
-  h += paginationHTML(state.clubPage, state.clubTotal, 20, "setClubPage");
-  return h;
+  }).join('');
+
+  document.getElementById('tradesContent').innerHTML = html;
 }
 
-function renderClubModal(c) {
-  const stats = [["Balance",fmtSVC(c.balance)],["Value",fmtSVC(c.value)],["Avg Rating",c.avg_player_rating?.toFixed(1)],["Top21 Avg",c.avg_player_rating_top21?.toFixed(1)],["Total Wages",fmtSVC(c.total_wages)],["Avg Wages",fmtSVC(c.avg_wages)],["Fans",fmt(c.fans_current)],["Stadium",fmt(c.stadium_size_current)],["Division",c.division],["Transfers In",fmt(c.transfers_in)],["Transfers Out",fmt(c.transfers_out)],["Last Price",fmtSVC(c.last_price)]];
-  const skills = [["Shooting",c.avg_shooting,"#ef4444"],["Passing",c.avg_passing,"#3b82f6"],["Tackling",c.avg_tackling,"#10b981"],["GK",c.gk_rating,"#f59e0b"]];
-  return `<div class="modal-overlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h2>Club #${c.club_id} <span style="font-size:13px;color:var(--text2)">(${c.country_id})</span></h2>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
-      ${stats.map(([l,v])=>`<div class="stat-box"><div class="stat-label">${l}</div><div class="stat-val">${v??"—"}</div></div>`).join("")}
-    </div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">
-      ${skills.map(([l,v,cl])=>`<div style="flex:1;min-width:90px"><div class="stat-label">${l}</div>${barHTML(v,100,cl)}</div>`).join("")}
-    </div>
-    ${c.manager_name?`<div style="font-size:12px;color:var(--text2)">Manager: <span style="color:var(--purple2);font-weight:600">${c.manager_name}</span></div>`:""}
-  </div></div>`;
-}
-
-function renderLeagues() {
-  if (state.loading) return `<div class="spinner"><div class="spinner-ring"></div></div>`;
-  if (!state.leagues.length&&!state.error) return `<div class="empty"><div class="empty-icon">🏆</div>No leagues loaded.</div>`;
-  let h = `<div class="grid grid-leagues">`;
-  for (const l of state.leagues) {
-    h += `<div class="card" onclick="openLeague(${l.league_id})">
-      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-        <div><div style="font-weight:700;font-size:15px;color:#f1f0f5">🏆 ${l.country_id} — Div ${l.division}</div><div style="font-size:11px;color:var(--text2)">${l.num_teams} teams · Rd ${l.round}/${l.num_rounds}</div></div>
-        <div style="text-align:right"><div style="font-size:9px;color:var(--text3);text-transform:uppercase">Mkt Cap</div><div style="color:var(--purple2);font-weight:700;font-size:14px">${fmtSVC(l.market_cap)}</div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:10px">
-        ${[["Prize",l.prize_money_pot],["TV",l.tv_money],["Wages",l.avg_wages],["7d Vol",l.total_volume_7_day]].map(([lb,v])=>`<div><div style="color:var(--text3);font-size:8px;text-transform:uppercase">${lb}</div><div style="color:var(--text);font-weight:600;margin-top:2px">${fmtSVC(v)}</div></div>`).join("")}
-      </div>
-      <div style="margin-top:10px;display:flex;align-items:center;gap:6px">${sparkSVG(l.last_7days,100,20,"#10b981")}<span style="font-size:9px;color:var(--text3)">View table →</span></div>
-    </div>`;
-  }
-  h += `</div>`;
-  return h;
-}
-
-function renderLeagueModal() {
-  const l = state.modal?.data;
-  if (!l) return "";
-  const rows = [...state.leagueTable].sort((a,b)=>a.new_position-b.new_position);
-  let tbody = "";
-  if (state.loading) tbody = `<tr><td colspan="10"><div class="spinner"><div class="spinner-ring"></div></div></td></tr>`;
-  else if (!rows.length) tbody = `<tr><td colspan="10" style="text-align:center;color:var(--text2);padding:30px">No standings data.</td></tr>`;
-  else tbody = rows.map((r,i)=>`<tr class="${i===0?'top':i%2===0?'stripe':''}">
-    <td style="color:${i<2?'var(--green)':'var(--text)'};font-weight:700">${r.new_position}</td>
-    <td style="color:var(--text);font-weight:600">#${r.club_id}${r.manager_name?`<span style="font-size:9px;color:var(--text3);margin-left:6px">(${r.manager_name})</span>`:""}</td>
-    <td style="text-align:center;color:var(--text2)">${r.played}</td>
-    <td style="text-align:center;color:var(--green)">${r.won}</td>
-    <td style="text-align:center;color:var(--yellow)">${r.drawn}</td>
-    <td style="text-align:center;color:var(--red)">${r.lost}</td>
-    <td style="text-align:center;color:var(--text2)">${r.goals_for}</td>
-    <td style="text-align:center;color:var(--text2)">${r.goals_against}</td>
-    <td style="text-align:center;color:#f1f0f5;font-weight:800;font-size:14px">${r.pts}</td>
-    <td>${formHTML(r.form)}</td>
-  </tr>`).join("");
-  return `<div class="modal-overlay" onclick="closeModal()"><div class="modal modal-wide" onclick="event.stopPropagation()">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h2>${l.country_id} — Division ${l.division}</h2>
-    <div style="overflow-x:auto"><table><thead><tr>
-      <th style="text-align:left">#</th><th style="text-align:left">Club</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>Pts</th><th>Form</th>
-    </tr></thead><tbody>${tbody}</tbody></table></div>
-  </div></div>`;
-}
-
-function renderMarket() {
-  if (state.loading) return `<div class="spinner"><div class="spinner-ring"></div></div>`;
-  if (!state.market&&!state.error) return `<div class="empty"><div class="empty-icon">📊</div>Loading...</div>`;
-  if (!state.market) return "";
-  const m = state.market;
-  const items = [
-    {l:"Total Market Cap",v:fmtSVC(m.TotalMarketCap),c:"var(--purple2)",i:"💎"},
-    {l:"7-Day Volume",v:fmtSVC(m.Total7dayVolume),c:"var(--green)",i:"📈"},
-    {l:"Total Players",v:fmt(m.TotalPlayers),c:"var(--blue)",i:"⚽"},
-    {l:"Players Mkt Cap",v:fmtSVC(m.PlayersMarketCap),c:"var(--purple)",i:"💰"},
-    {l:"Total Clubs",v:fmt(m.TotalClubs),c:"var(--yellow)",i:"🏟"},
-    {l:"Clubs Mkt Cap",v:fmtSVC(m.ClubsMarketCap),c:"var(--yellow)",i:"🏦"},
-    {l:"Club Balances",v:fmtSVC(m.ClubBalances),c:"var(--cyan)",i:"💵"},
-    {l:"User Balances",v:fmtSVC(m.UserBalances),c:"var(--green)",i:"👤"},
-    {l:"Total Users",v:fmt(m.NumberOfUsers),c:"var(--text2)",i:"👥"},
-    {l:"Active Users",v:fmt(m.ActiveUsers),c:"var(--green)",i:"🟢"},
-    {l:"Active Managers",v:fmt(m.ActiveManagers),c:"var(--purple)",i:"🧑‍💼"},
-    {l:"Agents",v:fmt(m.NumberAgents),c:"var(--orange)",i:"🤝"},
-    {l:"SVC→USDC",v:m.SVC2USDC?.toFixed(6)??"—",c:"var(--purple2)",i:"💱"},
-  ];
-  return `<div class="grid grid-market">${items.map(x=>`<div class="market-card"><div class="market-icon">${x.i}</div><div class="market-label">${x.l}</div><div class="market-val" style="color:${x.c}">${x.v}</div></div>`).join("")}</div>`;
-}
-
-function paginationHTML(page, total, pp, fn) {
-  const tp = Math.ceil(total/pp);
-  if (tp<=1) return "";
-  return `<div class="pagination"><button class="pg-btn" ${page<=1?"disabled":""} onclick="${fn}(${page-1})">← Prev</button><span class="pg-info">${page} / ${tp}</span><button class="pg-btn" ${page>=tp?"disabled":""} onclick="${fn}(${page+1})">Next →</button></div>`;
-}
-
-// ---- Event handlers ----
-window.switchTab = function(t) { setState({tab:t, modal:null, error:null}); loadData(); };
-window.updateFilter = function(key, val) { state[key]=val; state.playerPage=1; loadData(); };
-window.toggleOrder = function() { state.playerOrder=state.playerOrder==="desc"?"asc":"desc"; state.playerPage=1; loadData(); };
-window.setPlayerPage = function(p) { state.playerPage=p; loadData(); };
-window.setClubPage = function(p) { state.clubPage=p; loadData(); };
-
-let searchTimeout = null;
-window.debounceSearch = function(val) {
-  state.playerSearch = val;
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(()=>{ state.playerPage=1; loadData(); }, 500);
-};
-
-window.openPlayer = function(id) { const p=state.players.find(x=>x.player_id===id); if(p) setState({modal:{type:"player",data:p}}); };
-window.openClub = function(id) { const c=state.clubs.find(x=>x.club_id===id); if(c) setState({modal:{type:"club",data:c}}); };
-window.openLeague = function(id) { const l=state.leagues.find(x=>x.league_id===id); if(l) loadLeagueTable(l); };
-window.closeModal = function() { setState({modal:null}); };
-
-render();
+loadMarket();
 loadData();
 </script>
+
 </body>
 </html>
