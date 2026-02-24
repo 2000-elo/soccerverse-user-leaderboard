@@ -225,6 +225,12 @@
     white-space: nowrap;
     position: sticky;
     top: 0;
+    user-select: none;
+    transition: color 0.2s;
+  }
+
+  thead th[onclick]:hover, thead th[style*="cursor"] :hover {
+    color: var(--accent);
   }
 
   tbody tr { transition: background 0.15s; cursor: pointer; }
@@ -347,6 +353,225 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 16px;
     font-weight: 700;
+  }
+
+  /* Side Panel */
+  .side-panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .side-panel-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .side-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(480px, 90vw);
+    height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 101;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .side-panel.open {
+    transform: translateX(0);
+  }
+
+  .sp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .sp-header h3 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+
+  .sp-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .sp-close:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .sp-body {
+    padding: 28px;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .sp-section {
+    margin-bottom: 28px;
+  }
+
+  .sp-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sp-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(42, 48, 64, 0.3);
+  }
+
+  .sp-row:last-child { border-bottom: none; }
+
+  .sp-row .sp-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+  }
+
+  .sp-row .sp-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .sp-big-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .sp-big-stat .sp-big-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .sp-big-stat .sp-big-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 800;
+  }
+
+  .sp-big-stat .sp-big-sub {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .sp-formula {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+  }
+
+  .sp-formula-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sp-formula code {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--surface2);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+
+  .sp-formula p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .sp-formula p:last-child { margin-bottom: 0; }
+
+  .sp-formula .sp-highlight {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .sp-formula .sp-highlight-red {
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  /* Arrow button in expand row */
+  .detail-arrow-btn {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .detail-arrow-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
   }
 
   .time-row {
@@ -477,6 +702,18 @@
   </div>
 </div>
 
+<!-- Side Panel -->
+<div class="side-panel-overlay" id="spOverlay" onclick="closeSidePanel()"></div>
+<div class="side-panel" id="sidePanel">
+  <div class="sp-header">
+    <h3 id="spTitle">Advanced P/L</h3>
+    <button class="sp-close" onclick="closeSidePanel()">✕</button>
+  </div>
+  <div class="sp-body" id="spBody">
+    <p style="color:var(--text-dim)">Loading...</p>
+  </div>
+</div>
+
 <script>
 const API_BASE = 'https://services.soccerverse.com/api';
 
@@ -494,6 +731,8 @@ let searchQuery = '';
 let expandedRow = null;
 let workingProxy = null;
 let svcRate = 0; // SVC to USDC rate
+let volSortField = null; // current volume sort override
+let volSortOrder = 'desc'; // asc or desc
 
 // Search
 const searchInput = document.getElementById('searchInput');
@@ -605,6 +844,8 @@ function switchView(view, btn) {
   currentView = view;
   currentPage = 1;
   expandedRow = null;
+  volSortField = null;
+  volSortOrder = 'desc';
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   loadData();
@@ -614,9 +855,28 @@ function setTimePeriod(period, btn) {
   timePeriod = period;
   currentPage = 1;
   expandedRow = null;
+  volSortField = null;
+  volSortOrder = 'desc';
   document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   loadData();
+}
+
+function sortVolume(field) {
+  if (volSortField === field) {
+    volSortOrder = volSortOrder === 'desc' ? 'asc' : 'desc';
+  } else {
+    volSortField = field;
+    volSortOrder = 'desc';
+  }
+  currentPage = 1;
+  expandedRow = null;
+  loadData();
+}
+
+function sortArrow(field) {
+  if (volSortField === field) return volSortOrder === 'desc' ? ' ▼' : ' ▲';
+  return '';
 }
 
 function changePerPage() {
@@ -694,75 +954,46 @@ async function loadRichList() {
 
 async function loadVolume() {
   const pp = Math.min(perPage, 50);
+  const pLabel = timePeriod === 'lifetime' ? 'All' : timePeriod.toUpperCase();
 
-  // Map time period to sort field
-  const sortMap = {
-    '1d': 'buy_volume_1_day',
-    '7d': 'buy_volume_7_day',
-    '14d': 'total_volume',    // API doesn't have 14d, use total and show what we can
-    '30d': 'total_volume_30_day',
-    'lifetime': 'total_volume'
-  };
-  const sortField = sortMap[timePeriod] || 'total_volume';
+  // Determine which API fields map to this time period
+  let buyField, sellField, totalField;
+  if (timePeriod === '1d') {
+    buyField = 'buy_volume_1_day'; sellField = 'sell_volume_1_day'; totalField = null;
+  } else if (timePeriod === '7d' || timePeriod === '14d') {
+    buyField = 'buy_volume_7_day'; sellField = 'sell_volume_7_day'; totalField = null;
+  } else if (timePeriod === '30d') {
+    buyField = null; sellField = null; totalField = 'total_volume_30_day';
+  } else {
+    buyField = 'buy_total_volume'; sellField = 'sell_total_volume'; totalField = 'total_volume';
+  }
 
-  let url = `/users/detailed?page=${currentPage}&per_page=${pp}&sort_by=${sortField}&sort_order=desc`;
+  // Determine sort field
+  let sortField;
+  if (volSortField) {
+    sortField = volSortField;
+  } else if (totalField) {
+    sortField = totalField;
+  } else {
+    sortField = buyField;
+  }
+
+  const sortOrd = volSortField ? volSortOrder : 'desc';
+
+  let url = `/users/detailed?page=${currentPage}&per_page=${pp}&sort_by=${sortField}&sort_order=${sortOrd}`;
   if (searchQuery) url += `&name_prefix=${encodeURIComponent(searchQuery)}`;
   const data = await apiFetch(url);
   const items = data.items || [];
 
-  // Pick which fields to display based on period
   let headers, rowBuilder;
 
-  if (timePeriod === '1d') {
-    const maxVol = Math.max(...items.map(i => (i.buy_volume_1_day || 0) + (i.sell_volume_1_day || 0)), 1);
-    headers = `<th>#</th><th>User</th><th>Buy 1D</th><th>Sell 1D</th><th>Total 1D</th>`;
-    rowBuilder = (u, i) => {
-      const rank = (currentPage - 1) * pp + i + 1;
-      const total1d = (u.buy_volume_1_day || 0) + (u.sell_volume_1_day || 0);
-      const barPct = (total1d / maxVol * 100).toFixed(1);
-      return `<tr onclick="toggleExpand('${u.name}', this)">
-        ${rankHTML(rank)}
-        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
-        <td class="mono green">${fmt(u.buy_volume_1_day)}</td>
-        <td class="mono red">${fmt(u.sell_volume_1_day)}</td>
-        <td class="mono blue">${fmt(total1d)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
-      </tr>`;
-    };
-  } else if (timePeriod === '7d') {
-    const maxVol = Math.max(...items.map(i => (i.buy_volume_7_day || 0) + (i.sell_volume_7_day || 0)), 1);
-    headers = `<th>#</th><th>User</th><th>Buy 7D</th><th>Sell 7D</th><th>Total 7D</th>`;
-    rowBuilder = (u, i) => {
-      const rank = (currentPage - 1) * pp + i + 1;
-      const total7d = (u.buy_volume_7_day || 0) + (u.sell_volume_7_day || 0);
-      const barPct = (total7d / maxVol * 100).toFixed(1);
-      return `<tr onclick="toggleExpand('${u.name}', this)">
-        ${rankHTML(rank)}
-        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
-        <td class="mono green">${fmt(u.buy_volume_7_day)}</td>
-        <td class="mono red">${fmt(u.sell_volume_7_day)}</td>
-        <td class="mono blue">${fmt(total7d)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
-      </tr>`;
-    };
-  } else if (timePeriod === '14d') {
-    // API doesn't have 14d specifically, show 7d + 30d for context
-    const maxVol = Math.max(...items.map(i => (i.buy_volume_7_day || 0) + (i.sell_volume_7_day || 0)), 1);
-    headers = `<th>#</th><th>User</th><th>Buy 7D</th><th>Sell 7D</th><th>Total 7D</th><th>30D Vol</th>`;
-    rowBuilder = (u, i) => {
-      const rank = (currentPage - 1) * pp + i + 1;
-      const total7d = (u.buy_volume_7_day || 0) + (u.sell_volume_7_day || 0);
-      const barPct = (total7d / maxVol * 100).toFixed(1);
-      return `<tr onclick="toggleExpand('${u.name}', this)">
-        ${rankHTML(rank)}
-        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
-        <td class="mono green">${fmt(u.buy_volume_7_day)}</td>
-        <td class="mono red">${fmt(u.sell_volume_7_day)}</td>
-        <td class="mono blue">${fmt(total7d)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
-        <td class="mono yellow">${fmt(u.total_volume_30_day)}</td>
-      </tr>`;
-    };
-  } else if (timePeriod === '30d') {
+  if (timePeriod === '30d') {
+    // 30d only has total, not split buy/sell — show total + 7d buy/sell for context
     const maxVol = Math.max(...items.map(i => i.total_volume_30_day || 0), 1);
-    headers = `<th>#</th><th>User</th><th>30D Volume</th><th>Buy 7D</th><th>Sell 7D</th>`;
+    headers = `<th>#</th><th>User</th>
+      <th style="cursor:pointer" onclick="sortVolume('total_volume_30_day')">Total ${pLabel}${sortArrow('total_volume_30_day')}</th>
+      <th style="cursor:pointer" onclick="sortVolume('buy_volume_7_day')">Buy 7D${sortArrow('buy_volume_7_day')}</th>
+      <th style="cursor:pointer" onclick="sortVolume('sell_volume_7_day')">Sell 7D${sortArrow('sell_volume_7_day')}</th>`;
     rowBuilder = (u, i) => {
       const rank = (currentPage - 1) * pp + i + 1;
       const barPct = ((u.total_volume_30_day || 0) / maxVol * 100).toFixed(1);
@@ -774,10 +1005,13 @@ async function loadVolume() {
         <td class="mono red">${fmt(u.sell_volume_7_day)}</td>
       </tr>`;
     };
-  } else {
-    // lifetime
+  } else if (timePeriod === 'lifetime') {
     const maxVol = Math.max(...items.map(i => i.total_volume || 0), 1);
-    headers = `<th>#</th><th>User</th><th>Total Vol</th><th>Buy Total</th><th>Sell Total</th><th>30D Vol</th>`;
+    headers = `<th>#</th><th>User</th>
+      <th style="cursor:pointer" onclick="sortVolume('total_volume')">Total ${pLabel}${sortArrow('total_volume')}</th>
+      <th style="cursor:pointer" onclick="sortVolume('buy_total_volume')">Buy ${pLabel}${sortArrow('buy_total_volume')}</th>
+      <th style="cursor:pointer" onclick="sortVolume('sell_total_volume')">Sell ${pLabel}${sortArrow('sell_total_volume')}</th>
+      <th style="cursor:pointer" onclick="sortVolume('total_volume_30_day')">30D Vol${sortArrow('total_volume_30_day')}</th>`;
     rowBuilder = (u, i) => {
       const rank = (currentPage - 1) * pp + i + 1;
       const barPct = ((u.total_volume || 0) / maxVol * 100).toFixed(1);
@@ -788,6 +1022,28 @@ async function loadVolume() {
         <td class="mono green">${fmt(u.buy_total_volume)}</td>
         <td class="mono red">${fmt(u.sell_total_volume)}</td>
         <td class="mono blue">${fmt(u.total_volume_30_day)}</td>
+      </tr>`;
+    };
+  } else {
+    // 1d, 7d, 14d — all have buy/sell split
+    const maxVol = Math.max(...items.map(i => (i[buyField] || 0) + (i[sellField] || 0)), 1);
+    const extraHeader = timePeriod === '14d' ? `<th style="cursor:pointer" onclick="sortVolume('total_volume_30_day')">30D Vol${sortArrow('total_volume_30_day')}</th>` : '';
+    headers = `<th>#</th><th>User</th>
+      <th style="cursor:pointer" onclick="sortVolume('${buyField}')">Buy ${pLabel}${sortArrow(buyField)}</th>
+      <th style="cursor:pointer" onclick="sortVolume('${sellField}')">Sell ${pLabel}${sortArrow(sellField)}</th>
+      <th>Total ${pLabel}</th>${extraHeader}`;
+    rowBuilder = (u, i) => {
+      const rank = (currentPage - 1) * pp + i + 1;
+      const total = (u[buyField] || 0) + (u[sellField] || 0);
+      const barPct = (total / maxVol * 100).toFixed(1);
+      const extra14 = timePeriod === '14d' ? `<td class="mono yellow">${fmt(u.total_volume_30_day)}</td>` : '';
+      return `<tr onclick="toggleExpand('${u.name}', this)">
+        ${rankHTML(rank)}
+        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+        <td class="mono green">${fmt(u[buyField])}</td>
+        <td class="mono red">${fmt(u[sellField])}</td>
+        <td class="mono blue">${fmt(total)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+        ${extra14}
       </tr>`;
     };
   }
@@ -982,10 +1238,155 @@ async function toggleExpand(name, rowEl) {
 
     html += `</div></div>`;
 
+    // Add the advanced P/L arrow button
+    const arrowData = JSON.stringify({
+      name: name,
+      rich: rich,
+      userD: userD,
+      earn: earn
+    }).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+
+    html += `<div style="text-align:right;margin-top:4px;">
+      <button class="detail-arrow-btn" onclick="event.stopPropagation(); openSidePanel('${name}')" title="Advanced P/L Breakdown">→</button>
+    </div>`;
+
+    html += `</div>`;
+
+    // Store data for side panel
+    window._lastExpandData = { name, rich, userD, earn };
+
     loadRow.innerHTML = `<td colspan="${colCount}">${html}</td>`;
   } catch (e) {
     loadRow.innerHTML = `<td colspan="${colCount}"><div class="expand-content"><p style="color:var(--red);font-size:13px;">Could not load details</p></div></td>`;
   }
+}
+
+function openSidePanel(name) {
+  const d = window._lastExpandData;
+  if (!d) return;
+
+  const { rich, userD, earn } = d;
+  const panel = document.getElementById('sidePanel');
+  const overlay = document.getElementById('spOverlay');
+  const body = document.getElementById('spBody');
+
+  document.getElementById('spTitle').textContent = `${name} — Advanced P/L`;
+
+  let html = '';
+
+  // ── True P/L (including holdings) ──
+  if (rich && userD) {
+    const totalSpent = (userD.buy_total_volume || 0) / 10000;
+    const totalSold = (userD.sell_total_volume || 0) / 10000;
+    const netWorth = (rich.total_networth || 0) / 10000;
+    const balance = (rich.balance || 0) / 10000;
+    const clubAssets = (rich.club_asset_value || 0) / 10000;
+    const playerAssets = (rich.player_asset_value || 0) / 10000;
+
+    const tradePL = totalSold - totalSpent;
+    const truePL = netWorth - totalSpent;
+    const unrealised = (clubAssets + playerAssets);
+
+    html += `<div class="sp-section">
+      <div class="sp-section-title">True P/L (Including Holdings)</div>
+      <div class="sp-big-stat">
+        <div class="sp-big-label">True Overall P/L</div>
+        <div class="sp-big-val ${truePL >= 0 ? 'green' : 'red'}">${truePL >= 0 ? '▲' : '▼'} ${fmtSvc(Math.abs(truePL))} SVC</div>
+        <div class="sp-big-sub">${svcRate > 0 ? (truePL >= 0 ? '+' : '-') + '$' + fmtSvc(Math.abs(truePL * svcRate)) + ' USDC' : ''}</div>
+      </div>
+    </div>`;
+
+    // ── Breakdown ──
+    html += `<div class="sp-section">
+      <div class="sp-section-title">Full Breakdown</div>
+      <div class="sp-row">
+        <span class="sp-label">Total Spent (Buys)</span>
+        <span class="sp-val red">${fmtSvc(totalSpent)} SVC${svcRate > 0 ? ' <span style="color:var(--text-muted);font-size:11px">($' + fmtSvc(totalSpent * svcRate) + ')</span>' : ''}</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Total Sold</span>
+        <span class="sp-val green">${fmtSvc(totalSold)} SVC${svcRate > 0 ? ' <span style="color:var(--text-muted);font-size:11px">($' + fmtSvc(totalSold * svcRate) + ')</span>' : ''}</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Trade P/L (Realised)</span>
+        <span class="sp-val ${tradePL >= 0 ? 'green' : 'red'}">${tradePL >= 0 ? '▲ +' : '▼ '}${fmtSvc(Math.abs(tradePL))} SVC</span>
+      </div>
+      <div style="border-top:1px solid var(--border);margin:8px 0;"></div>
+      <div class="sp-row">
+        <span class="sp-label">Current Balance</span>
+        <span class="sp-val blue">${fmtSvc(balance)} SVC</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Club Assets (Unsold)</span>
+        <span class="sp-val yellow">${fmtSvc(clubAssets)} SVC</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Player Assets (Unsold)</span>
+        <span class="sp-val purple">${fmtSvc(playerAssets)} SVC</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Total Net Worth</span>
+        <span class="sp-val green">${fmtSvc(netWorth)} SVC</span>
+      </div>
+      <div style="border-top:1px solid var(--border);margin:8px 0;"></div>
+      <div class="sp-row">
+        <span class="sp-label" style="font-weight:700;color:var(--text)">True P/L</span>
+        <span class="sp-val ${truePL >= 0 ? 'green' : 'red'}" style="font-size:16px">${truePL >= 0 ? '▲ +' : '▼ '}${fmtSvc(Math.abs(truePL))} SVC</span>
+      </div>
+    </div>`;
+
+    // ── Comparison ──
+    html += `<div class="sp-section">
+      <div class="sp-section-title">Realised vs True P/L</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="sp-big-stat">
+          <div class="sp-big-label">Trade P/L</div>
+          <div class="sp-big-val ${tradePL >= 0 ? 'green' : 'red'}" style="font-size:20px">${tradePL >= 0 ? '▲' : '▼'} ${fmtSvc(Math.abs(tradePL))}</div>
+          <div class="sp-big-sub">Sold − Spent</div>
+        </div>
+        <div class="sp-big-stat">
+          <div class="sp-big-label">True P/L</div>
+          <div class="sp-big-val ${truePL >= 0 ? 'green' : 'red'}" style="font-size:20px">${truePL >= 0 ? '▲' : '▼'} ${fmtSvc(Math.abs(truePL))}</div>
+          <div class="sp-big-sub">Net Worth − Spent</div>
+        </div>
+      </div>
+      ${tradePL < 0 && truePL > 0 ? `<div style="background:var(--accent-dim);border:1px solid rgba(34,217,127,0.2);border-radius:10px;padding:14px 18px;margin-top:12px;">
+        <p style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px;">💡 Hidden Profit</p>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">This user looks like they're at a loss based on trades alone, but their holdings (clubs + players) are worth more than the difference. They're actually <strong style="color:var(--accent)">up ${fmtSvc(Math.abs(truePL))} SVC</strong> overall.</p>
+      </div>` : ''}
+      ${tradePL >= 0 && truePL >= 0 && truePL > tradePL ? `<div style="background:var(--accent-dim);border:1px solid rgba(34,217,127,0.2);border-radius:10px;padding:14px 18px;margin-top:12px;">
+        <p style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px;">📈 Unrealised Gains</p>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">This user is profiting from trades AND their holdings are adding extra value. They have <strong style="color:var(--accent)">${fmtSvc(unrealised)} SVC</strong> in unsold assets.</p>
+      </div>` : ''}
+      ${truePL < 0 ? `<div style="background:var(--red-dim);border:1px solid rgba(255,77,106,0.2);border-radius:10px;padding:14px 18px;margin-top:12px;">
+        <p style="font-size:13px;color:var(--red);font-weight:600;margin-bottom:4px;">📉 Overall Loss</p>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">Even including all holdings, this user is down <strong style="color:var(--red)">${fmtSvc(Math.abs(truePL))} SVC</strong> overall from what they've spent.</p>
+      </div>` : ''}
+    </div>`;
+
+    // ── Formula explanation ──
+    html += `<div class="sp-formula">
+      <div class="sp-formula-title">📐 How this is calculated</div>
+      <code><span class="sp-highlight">Trade P/L</span> = Total Sold − Total Spent<br>= ${fmtSvc(totalSold)} − ${fmtSvc(totalSpent)} = <span class="${tradePL >= 0 ? 'sp-highlight' : 'sp-highlight-red'}">${tradePL >= 0 ? '+' : ''}${fmtSvc(tradePL)}</span></code>
+      <p>This only counts completed trades — SVC that actually left or entered your wallet. If you bought shares but haven't sold them, it shows as a "loss" even though you still own the assets.</p>
+      <code><span class="sp-highlight">True P/L</span> = Net Worth − Total Spent<br>= ${fmtSvc(netWorth)} − ${fmtSvc(totalSpent)} = <span class="${truePL >= 0 ? 'sp-highlight' : 'sp-highlight-red'}">${truePL >= 0 ? '+' : ''}${fmtSvc(truePL)}</span></code>
+      <p>This includes everything — your balance, plus the current value of all your club and player shares. It gives the <span class="sp-highlight">true picture</span> of whether you're up or down overall.</p>
+      <code><span class="sp-highlight">Net Worth</span> = Balance + Club Assets + Player Assets<br>= ${fmtSvc(balance)} + ${fmtSvc(clubAssets)} + ${fmtSvc(playerAssets)} = <span class="sp-highlight">${fmtSvc(netWorth)}</span></code>
+    </div>`;
+  } else {
+    html += `<p style="color:var(--text-dim);padding:20px;">Could not load advanced data for this user.</p>`;
+  }
+
+  body.innerHTML = html;
+  panel.classList.add('open');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSidePanel() {
+  document.getElementById('sidePanel').classList.remove('open');
+  document.getElementById('spOverlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 loadMarket();
