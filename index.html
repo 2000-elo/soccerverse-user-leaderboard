@@ -1284,8 +1284,8 @@ function openSidePanel(name) {
     const playerAssets = (rich.player_asset_value || 0) / 10000;
 
     const tradePL = totalSold - totalSpent;
-    const truePL = netWorth - totalSpent;
-    const unrealised = (clubAssets + playerAssets);
+    const holdings = clubAssets + playerAssets;
+    const truePL = tradePL + holdings;
 
     html += `<div class="sp-section">
       <div class="sp-section-title">True P/L (Including Holdings)</div>
@@ -1313,16 +1313,21 @@ function openSidePanel(name) {
       </div>
       <div style="border-top:1px solid var(--border);margin:8px 0;"></div>
       <div class="sp-row">
-        <span class="sp-label">Current Balance</span>
-        <span class="sp-val blue">${fmtSvc(balance)} SVC</span>
-      </div>
-      <div class="sp-row">
         <span class="sp-label">Club Assets (Unsold)</span>
         <span class="sp-val yellow">${fmtSvc(clubAssets)} SVC</span>
       </div>
       <div class="sp-row">
         <span class="sp-label">Player Assets (Unsold)</span>
         <span class="sp-val purple">${fmtSvc(playerAssets)} SVC</span>
+      </div>
+      <div class="sp-row">
+        <span class="sp-label">Total Holdings</span>
+        <span class="sp-val blue">${fmtSvc(holdings)} SVC</span>
+      </div>
+      <div style="border-top:1px solid var(--border);margin:8px 0;"></div>
+      <div class="sp-row">
+        <span class="sp-label">Current Balance</span>
+        <span class="sp-val blue">${fmtSvc(balance)} SVC</span>
       </div>
       <div class="sp-row">
         <span class="sp-label">Total Net Worth</span>
@@ -1347,20 +1352,20 @@ function openSidePanel(name) {
         <div class="sp-big-stat">
           <div class="sp-big-label">True P/L</div>
           <div class="sp-big-val ${truePL >= 0 ? 'green' : 'red'}" style="font-size:20px">${truePL >= 0 ? '▲' : '▼'} ${fmtSvc(Math.abs(truePL))}</div>
-          <div class="sp-big-sub">Net Worth − Spent</div>
+          <div class="sp-big-sub">Trade P/L + Holdings</div>
         </div>
       </div>
       ${tradePL < 0 && truePL > 0 ? `<div style="background:var(--accent-dim);border:1px solid rgba(34,217,127,0.2);border-radius:10px;padding:14px 18px;margin-top:12px;">
         <p style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px;">💡 Hidden Profit</p>
-        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">This user looks like they're at a loss based on trades alone, but their holdings (clubs + players) are worth more than the difference. They're actually <strong style="color:var(--accent)">up ${fmtSvc(Math.abs(truePL))} SVC</strong> overall.</p>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">This user looks like they're at a loss based on trades alone (${fmtSvc(Math.abs(tradePL))} SVC down), but their unsold holdings are worth <strong style="color:var(--accent)">${fmtSvc(holdings)} SVC</strong>, which more than covers the trade loss. They're actually <strong style="color:var(--accent)">up ${fmtSvc(Math.abs(truePL))} SVC</strong> overall.</p>
       </div>` : ''}
-      ${tradePL >= 0 && truePL >= 0 && truePL > tradePL ? `<div style="background:var(--accent-dim);border:1px solid rgba(34,217,127,0.2);border-radius:10px;padding:14px 18px;margin-top:12px;">
-        <p style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px;">📈 Unrealised Gains</p>
-        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">This user is profiting from trades AND their holdings are adding extra value. They have <strong style="color:var(--accent)">${fmtSvc(unrealised)} SVC</strong> in unsold assets.</p>
+      ${tradePL >= 0 && truePL >= 0 ? `<div style="background:var(--accent-dim);border:1px solid rgba(34,217,127,0.2);border-radius:10px;padding:14px 18px;margin-top:12px;">
+        <p style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px;">📈 Winning on All Fronts</p>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">This user is profiting from trades AND sitting on <strong style="color:var(--accent)">${fmtSvc(holdings)} SVC</strong> worth of unsold assets on top.</p>
       </div>` : ''}
       ${truePL < 0 ? `<div style="background:var(--red-dim);border:1px solid rgba(255,77,106,0.2);border-radius:10px;padding:14px 18px;margin-top:12px;">
         <p style="font-size:13px;color:var(--red);font-weight:600;margin-bottom:4px;">📉 Overall Loss</p>
-        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">Even including all holdings, this user is down <strong style="color:var(--red)">${fmtSvc(Math.abs(truePL))} SVC</strong> overall from what they've spent.</p>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.5;">Even including ${fmtSvc(holdings)} SVC in unsold holdings, this user is still down <strong style="color:var(--red)">${fmtSvc(Math.abs(truePL))} SVC</strong> overall.</p>
       </div>` : ''}
     </div>`;
 
@@ -1369,9 +1374,9 @@ function openSidePanel(name) {
       <div class="sp-formula-title">📐 How this is calculated</div>
       <code><span class="sp-highlight">Trade P/L</span> = Total Sold − Total Spent<br>= ${fmtSvc(totalSold)} − ${fmtSvc(totalSpent)} = <span class="${tradePL >= 0 ? 'sp-highlight' : 'sp-highlight-red'}">${tradePL >= 0 ? '+' : ''}${fmtSvc(tradePL)}</span></code>
       <p>This only counts completed trades — SVC that actually left or entered your wallet. If you bought shares but haven't sold them, it shows as a "loss" even though you still own the assets.</p>
-      <code><span class="sp-highlight">True P/L</span> = Net Worth − Total Spent<br>= ${fmtSvc(netWorth)} − ${fmtSvc(totalSpent)} = <span class="${truePL >= 0 ? 'sp-highlight' : 'sp-highlight-red'}">${truePL >= 0 ? '+' : ''}${fmtSvc(truePL)}</span></code>
-      <p>This includes everything — your balance, plus the current value of all your club and player shares. It gives the <span class="sp-highlight">true picture</span> of whether you're up or down overall.</p>
-      <code><span class="sp-highlight">Net Worth</span> = Balance + Club Assets + Player Assets<br>= ${fmtSvc(balance)} + ${fmtSvc(clubAssets)} + ${fmtSvc(playerAssets)} = <span class="sp-highlight">${fmtSvc(netWorth)}</span></code>
+      <code><span class="sp-highlight">True P/L</span> = Trade P/L + Holdings<br>= ${fmtSvc(tradePL)} + ${fmtSvc(holdings)}<br>= (${fmtSvc(totalSold)} − ${fmtSvc(totalSpent)}) + (${fmtSvc(clubAssets)} + ${fmtSvc(playerAssets)})<br>= <span class="${truePL >= 0 ? 'sp-highlight' : 'sp-highlight-red'}">${truePL >= 0 ? '+' : ''}${fmtSvc(truePL)}</span></code>
+      <p>This takes your trade P/L and adds back the current value of all your unsold club and player shares. It gives the <span class="sp-highlight">true picture</span> of whether you're up or down overall.</p>
+      <p>Think of it like stocks: if you spend 100K buying shares and haven't sold any, your Trade P/L is −100K. But if those shares are now worth 150K, your True P/L is actually <span class="sp-highlight">+50K</span>.</p>
     </div>`;
   } else {
     html += `<p style="color:var(--text-dim);padding:20px;">Could not load advanced data for this user.</p>`;
