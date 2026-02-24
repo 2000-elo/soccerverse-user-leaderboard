@@ -1233,7 +1233,7 @@ async function toggleExpand(name, rowEl) {
       };
       const ep = periodMap[timePeriod] || earn.earnings_7d || {};
       const pLabel = timePeriod === 'lifetime' ? '30D' : timePeriod.toUpperCase();
-      html += `<div class="expand-stat"><div class="es-label">Earned ${pLabel}</div><div class="es-val green">${fmtWithUsdc((ep.svc || 0) * 10000)}</div></div>`;
+      html += `<div class="expand-stat"><div class="es-label">Earned ${pLabel}</div><div class="es-val green">${fmtWithUsdc(ep.svc || 0)}</div></div>`;
     }
 
     html += `</div></div>`;
