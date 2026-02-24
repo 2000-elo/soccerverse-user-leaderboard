@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soccerverse — Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #12151c;
+    --surface2: #191d27;
+    --surface3: #1f2430;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #7a8499;
+    --text-muted: #4a5568;
+    --accent: #22d97f;
+    --accent-dim: rgba(34, 217, 127, 0.12);
+    --accent-glow: rgba(34, 217, 127, 0.25);
+    --red: #ff4d6a;
+    --red-dim: rgba(255, 77, 106, 0.12);
+    --blue: #4d9fff;
+    --blue-dim: rgba(77, 159, 255, 0.12);
+    --yellow: #ffc64d;
+    --yellow-dim: rgba(255, 198, 77, 0.12);
+    --purple: #a87fff;
+    --gold: #ffd700;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(34, 217, 127, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34, 217, 127, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .header .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(34, 217, 127, 0.2);
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: clamp(30px, 5vw, 48px);
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+
+  .header h1 span {
+    background: linear-gradient(135deg, var(--accent), #4dffa6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .header p {
+    color: var(--text-dim);
+    font-size: 15px;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .tab-row {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    color: var(--text-dim);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { background: var(--accent); color: var(--bg); }
+
+  .per-page-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .per-page-wrap label { font-size: 13px; color: var(--text-muted); }
+
+  .per-page-wrap select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .per-page-wrap select:focus { border-color: var(--accent); }
+
+  .market-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .ms-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    text-align: center;
+  }
+
+  .ms-card .ms-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .ms-card .ms-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .loader { text-align: center; padding: 80px 0; }
+
+  .loader .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loader p { color: var(--text-dim); font-size: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .table-scroll { overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; min-width: 800px; }
+
+  thead th {
+    text-align: left;
+    padding: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+  }
+
+  tbody tr { transition: background 0.15s; cursor: pointer; }
+  tbody tr:hover { background: var(--surface2); }
+
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(42, 48, 64, 0.4);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .rank-cell {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    width: 50px;
+    text-align: center;
+  }
+
+  .rank-1 { color: var(--gold); }
+  .rank-2 { color: var(--silver); }
+  .rank-3 { color: var(--bronze); }
+  .rank-medal { font-size: 20px; }
+
+  .user-cell { display: flex; align-items: center; gap: 12px; }
+
+  .user-cell .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .user-cell .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .user-cell .uname { font-weight: 700; font-size: 14px; color: var(--text); }
+
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+  .green { color: var(--accent); }
+  .blue { color: var(--blue); }
+  .yellow { color: var(--yellow); }
+  .red { color: var(--red); }
+  .purple { color: var(--purple); }
+
+  .mini-bar-wrap {
+    width: 80px; height: 6px;
+    background: var(--surface3);
+    border-radius: 3px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+
+  .mini-bar { height: 100%; border-radius: 3px; background: var(--accent); }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .page-btn {
+    padding: 10px 18px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .page-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 0 12px;
+  }
+
+  .expand-row td { padding: 0 !important; border-bottom: 1px solid var(--border); }
+
+  .expand-content {
+    padding: 20px 24px;
+    background: var(--surface2);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+  }
+
+  .expand-stat { text-align: center; }
+
+  .expand-stat .es-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .expand-stat .es-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .time-row {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+
+  .time-btn {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .time-btn:hover { color: var(--text-dim); }
+  .time-btn.active { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(34,217,127,0.25); }
+
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .search-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+  }
+
+  .search-wrap input {
+    background: none;
+    border: none;
+    outline: none;
+    padding: 10px 14px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    width: 180px;
+  }
+
+  .search-wrap input::placeholder { color: var(--text-muted); }
+
+  .search-wrap button {
+    background: none;
+    border: none;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-dim);
+    transition: color 0.2s;
+  }
+
+  .search-wrap button:hover { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .controls { flex-direction: column; align-items: stretch; }
+    .tab-row { justify-content: center; }
+    .time-row { flex-wrap: wrap; justify-content: center; width: 100%; }
+    .market-strip { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="badge">Live Leaderboard</div>
+    <h1>Soccerverse <span>Leaderboard</span></h1>
+    <p>Users ranked by net worth, balance, and trading volume</p>
+  </div>
+
+  <div class="market-strip">
+    <div class="ms-card"><div class="ms-label">Total Market Cap</div><div class="ms-val" id="msTotalCap">—</div></div>
+    <div class="ms-card"><div class="ms-label">7D Volume</div><div class="ms-val" id="ms7dVol">—</div></div>
+    <div class="ms-card"><div class="ms-label">Active Users</div><div class="ms-val" id="msActive">—</div></div>
+    <div class="ms-card"><div class="ms-label">Total Users</div><div class="ms-val" id="msTotal">—</div></div>
+    <div class="ms-card"><div class="ms-label">SVC → USDC</div><div class="ms-val" id="msRate">—</div></div>
+  </div>
+
+  <div class="controls">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchView('richlist', this)">💰 Net Worth</button>
+      <button class="tab-btn" onclick="switchView('volume', this)">📊 Volume</button>
+      <button class="tab-btn" onclick="switchView('managers', this)">🏆 Best Managers</button>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search user..." autocomplete="off" />
+        <button id="searchBtn" onclick="doSearch()">🔍</button>
+        <button id="clearBtn" onclick="clearSearch()" style="display:none">✕</button>
+      </div>
+      <div class="per-page-wrap">
+        <label>Show</label>
+        <select id="perPageSelect" onchange="changePerPage()">
+          <option value="20" selected>20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="time-row" id="timeRow">
+    <button class="time-btn" onclick="setTimePeriod('1d', this)">1D</button>
+    <button class="time-btn active" onclick="setTimePeriod('7d', this)">7D</button>
+    <button class="time-btn" onclick="setTimePeriod('14d', this)">14D</button>
+    <button class="time-btn" onclick="setTimePeriod('30d', this)">30D</button>
+    <button class="time-btn" onclick="setTimePeriod('lifetime', this)">Lifetime</button>
+  </div>
+
+  <div id="content">
+    <div class="loader"><div class="spinner"></div><p>Loading leaderboard...</p></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://services.soccerverse.com/api';
+
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+];
+
+let currentView = 'richlist';
+let currentPage = 1;
+let perPage = 20;
+let timePeriod = '7d';
+let searchQuery = '';
+let expandedRow = null;
+let workingProxy = null;
+let svcRate = 0; // SVC to USDC rate
+
+// Search
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+function doSearch() {
+  const val = searchInput.value.trim();
+  searchQuery = val;
+  currentPage = 1;
+  expandedRow = null;
+  document.getElementById('clearBtn').style.display = val ? 'block' : 'none';
+  loadData();
+}
+
+function clearSearch() {
+  searchInput.value = '';
+  searchQuery = '';
+  currentPage = 1;
+  document.getElementById('clearBtn').style.display = 'none';
+  loadData();
+} // null = not tested, 'direct' = no proxy, or a proxy function
+
+function fmt(n) {
+  if (n === null || n === undefined) return '—';
+  if (typeof n !== 'number') n = Number(n);
+  if (isNaN(n)) return '—';
+  n = n / 10000; // SVC conversion
+  if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+// For numbers that should NOT be divided (counts, ranks, etc)
+function fmtRaw(n) {
+  if (n === null || n === undefined) return '—';
+  if (typeof n !== 'number') n = Number(n);
+  if (isNaN(n)) return '—';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+
+async function tryFetch(url, timeout) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+async function apiFetch(path) {
+  const url = `${API_BASE}${path}`;
+
+  // Use known working method
+  if (workingProxy === 'direct') {
+    const res = await tryFetch(url, 10000);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+  if (typeof workingProxy === 'function') {
+    const res = await tryFetch(workingProxy(url), 10000);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    return JSON.parse(text);
+  }
+
+  // Discovery: try direct first
+  try {
+    const res = await tryFetch(url, 4000);
+    if (res.ok) {
+      const data = await res.json();
+      workingProxy = 'direct';
+      console.log('✓ Direct API works');
+      return data;
+    }
+  } catch (e) {
+    console.log('✗ Direct failed, trying proxies...');
+  }
+
+  // Try each proxy
+  for (let i = 0; i < PROXIES.length; i++) {
+    try {
+      const proxyUrl = PROXIES[i](url);
+      console.log(`Trying proxy ${i + 1}...`);
+      const res = await tryFetch(proxyUrl, 8000);
+      if (res.ok) {
+        const text = await res.text();
+        const data = JSON.parse(text);
+        workingProxy = PROXIES[i];
+        console.log(`✓ Proxy ${i + 1} works`);
+        return data;
+      }
+    } catch (e) {
+      console.log(`✗ Proxy ${i + 1} failed`);
+      continue;
+    }
+  }
+
+  throw new Error('Cannot reach Soccerverse API. Try opening this file in your browser (not Claude preview).');
+}
+
+function switchView(view, btn) {
+  currentView = view;
+  currentPage = 1;
+  expandedRow = null;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadData();
+}
+
+function setTimePeriod(period, btn) {
+  timePeriod = period;
+  currentPage = 1;
+  expandedRow = null;
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadData();
+}
+
+function changePerPage() {
+  perPage = parseInt(document.getElementById('perPageSelect').value);
+  currentPage = 1;
+  loadData();
+}
+
+function showLoader() {
+  document.getElementById('content').innerHTML = `
+    <div class="loader"><div class="spinner"></div><p>Loading leaderboard...</p></div>`;
+}
+
+async function loadMarket() {
+  try {
+    const m = await apiFetch('/market');
+    document.getElementById('msTotalCap').textContent = fmt(m.TotalMarketCap);
+    document.getElementById('ms7dVol').textContent = fmt(m.Total7dayVolume);
+    document.getElementById('msActive').textContent = fmtRaw(m.ActiveUsers);
+    document.getElementById('msTotal').textContent = fmtRaw(m.NumberOfUsers);
+    document.getElementById('msRate').textContent = m.SVC2USDC ? '$' + Number(m.SVC2USDC).toFixed(4) : '—';
+    if (m.SVC2USDC) svcRate = Number(m.SVC2USDC);
+  } catch (e) { console.warn('Market fetch failed', e); }
+}
+
+async function loadData() {
+  showLoader();
+  try {
+    if (currentView === 'richlist') await loadRichList();
+    else if (currentView === 'volume') await loadVolume();
+    else if (currentView === 'managers') await loadManagers();
+  } catch (e) {
+    document.getElementById('content').innerHTML = `
+      <div class="loader"><p style="color:var(--red)">${e.message}</p></div>`;
+  }
+}
+
+function avatarHTML(name, pic) {
+  const initial = name ? name[0].toUpperCase() : '?';
+  if (pic) return `<img src="${pic}" onerror="this.parentElement.textContent='${initial}'" />`;
+  return initial;
+}
+
+function rankHTML(rank) {
+  const cls = rank <= 3 ? `rank-${rank}` : '';
+  const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+  const inner = rank <= 3 ? `<span class="rank-medal">${medal}</span>` : rank;
+  return `<td class="rank-cell ${cls}">${inner}</td>`;
+}
+
+async function loadRichList() {
+  const pp = Math.min(perPage, 50);
+  let url = `/rich_list?page=${currentPage}&per_page=${pp}&sort_by=total_networth&sort_order=desc`;
+  if (searchQuery) url += `&name=${encodeURIComponent(searchQuery)}`;
+  const data = await apiFetch(url);
+  const items = data.items || [];
+  const maxNW = Math.max(...items.map(i => i.total_networth || 0), 1);
+
+  const rows = items.map((u, i) => {
+    const rank = u.rank || ((currentPage - 1) * pp + i + 1);
+    const barPct = ((u.total_networth || 0) / maxNW * 100).toFixed(1);
+    return `<tr onclick="toggleExpand('${u.name}', this)">
+      ${rankHTML(rank)}
+      <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+      <td class="mono green">${fmt(u.total_networth)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+      <td class="mono blue">${fmt(u.balance)}</td>
+      <td class="mono yellow">${fmt(u.club_asset_value)}</td>
+      <td class="mono purple">${fmt(u.player_asset_value)}</td>
+    </tr>`;
+  }).join('');
+
+  renderTable(`<th>#</th><th>User</th><th>Net Worth</th><th>Balance</th><th>Club Assets</th><th>Player Assets</th>`,
+    rows, data.total_pages || 1, data.total || 0);
+}
+
+async function loadVolume() {
+  const pp = Math.min(perPage, 50);
+
+  // Map time period to sort field
+  const sortMap = {
+    '1d': 'buy_volume_1_day',
+    '7d': 'buy_volume_7_day',
+    '14d': 'total_volume',    // API doesn't have 14d, use total and show what we can
+    '30d': 'total_volume_30_day',
+    'lifetime': 'total_volume'
+  };
+  const sortField = sortMap[timePeriod] || 'total_volume';
+
+  let url = `/users/detailed?page=${currentPage}&per_page=${pp}&sort_by=${sortField}&sort_order=desc`;
+  if (searchQuery) url += `&name_prefix=${encodeURIComponent(searchQuery)}`;
+  const data = await apiFetch(url);
+  const items = data.items || [];
+
+  // Pick which fields to display based on period
+  let headers, rowBuilder;
+
+  if (timePeriod === '1d') {
+    const maxVol = Math.max(...items.map(i => (i.buy_volume_1_day || 0) + (i.sell_volume_1_day || 0)), 1);
+    headers = `<th>#</th><th>User</th><th>Buy 1D</th><th>Sell 1D</th><th>Total 1D</th>`;
+    rowBuilder = (u, i) => {
+      const rank = (currentPage - 1) * pp + i + 1;
+      const total1d = (u.buy_volume_1_day || 0) + (u.sell_volume_1_day || 0);
+      const barPct = (total1d / maxVol * 100).toFixed(1);
+      return `<tr onclick="toggleExpand('${u.name}', this)">
+        ${rankHTML(rank)}
+        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+        <td class="mono green">${fmt(u.buy_volume_1_day)}</td>
+        <td class="mono red">${fmt(u.sell_volume_1_day)}</td>
+        <td class="mono blue">${fmt(total1d)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+      </tr>`;
+    };
+  } else if (timePeriod === '7d') {
+    const maxVol = Math.max(...items.map(i => (i.buy_volume_7_day || 0) + (i.sell_volume_7_day || 0)), 1);
+    headers = `<th>#</th><th>User</th><th>Buy 7D</th><th>Sell 7D</th><th>Total 7D</th>`;
+    rowBuilder = (u, i) => {
+      const rank = (currentPage - 1) * pp + i + 1;
+      const total7d = (u.buy_volume_7_day || 0) + (u.sell_volume_7_day || 0);
+      const barPct = (total7d / maxVol * 100).toFixed(1);
+      return `<tr onclick="toggleExpand('${u.name}', this)">
+        ${rankHTML(rank)}
+        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+        <td class="mono green">${fmt(u.buy_volume_7_day)}</td>
+        <td class="mono red">${fmt(u.sell_volume_7_day)}</td>
+        <td class="mono blue">${fmt(total7d)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+      </tr>`;
+    };
+  } else if (timePeriod === '14d') {
+    // API doesn't have 14d specifically, show 7d + 30d for context
+    const maxVol = Math.max(...items.map(i => (i.buy_volume_7_day || 0) + (i.sell_volume_7_day || 0)), 1);
+    headers = `<th>#</th><th>User</th><th>Buy 7D</th><th>Sell 7D</th><th>Total 7D</th><th>30D Vol</th>`;
+    rowBuilder = (u, i) => {
+      const rank = (currentPage - 1) * pp + i + 1;
+      const total7d = (u.buy_volume_7_day || 0) + (u.sell_volume_7_day || 0);
+      const barPct = (total7d / maxVol * 100).toFixed(1);
+      return `<tr onclick="toggleExpand('${u.name}', this)">
+        ${rankHTML(rank)}
+        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+        <td class="mono green">${fmt(u.buy_volume_7_day)}</td>
+        <td class="mono red">${fmt(u.sell_volume_7_day)}</td>
+        <td class="mono blue">${fmt(total7d)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+        <td class="mono yellow">${fmt(u.total_volume_30_day)}</td>
+      </tr>`;
+    };
+  } else if (timePeriod === '30d') {
+    const maxVol = Math.max(...items.map(i => i.total_volume_30_day || 0), 1);
+    headers = `<th>#</th><th>User</th><th>30D Volume</th><th>Buy 7D</th><th>Sell 7D</th>`;
+    rowBuilder = (u, i) => {
+      const rank = (currentPage - 1) * pp + i + 1;
+      const barPct = ((u.total_volume_30_day || 0) / maxVol * 100).toFixed(1);
+      return `<tr onclick="toggleExpand('${u.name}', this)">
+        ${rankHTML(rank)}
+        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+        <td class="mono green">${fmt(u.total_volume_30_day)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+        <td class="mono blue">${fmt(u.buy_volume_7_day)}</td>
+        <td class="mono red">${fmt(u.sell_volume_7_day)}</td>
+      </tr>`;
+    };
+  } else {
+    // lifetime
+    const maxVol = Math.max(...items.map(i => i.total_volume || 0), 1);
+    headers = `<th>#</th><th>User</th><th>Total Vol</th><th>Buy Total</th><th>Sell Total</th><th>30D Vol</th>`;
+    rowBuilder = (u, i) => {
+      const rank = (currentPage - 1) * pp + i + 1;
+      const barPct = ((u.total_volume || 0) / maxVol * 100).toFixed(1);
+      return `<tr onclick="toggleExpand('${u.name}', this)">
+        ${rankHTML(rank)}
+        <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+        <td class="mono green">${fmt(u.total_volume)}<div class="mini-bar-wrap"><div class="mini-bar" style="width:${barPct}%"></div></div></td>
+        <td class="mono green">${fmt(u.buy_total_volume)}</td>
+        <td class="mono red">${fmt(u.sell_total_volume)}</td>
+        <td class="mono blue">${fmt(u.total_volume_30_day)}</td>
+      </tr>`;
+    };
+  }
+
+  const rows = items.map(rowBuilder).join('');
+  renderTable(headers, rows, data.total_pages || 1, data.total || 0);
+}
+
+async function loadManagers() {
+  const pp = Math.min(perPage, 50);
+  let url = `/best_managers?page=${currentPage}&per_page=${pp}&sort_by=rank_a_ranking&sort_order=asc`;
+  if (searchQuery) url += `&name=${encodeURIComponent(searchQuery)}`;
+  const data = await apiFetch(url);
+  const items = data.items || [];
+
+  const rows = items.map((u, i) => {
+    const rank = u.rank_a_ranking || ((currentPage - 1) * pp + i + 1);
+    return `<tr>
+      ${rankHTML(rank)}
+      <td><div class="user-cell"><div class="avatar">${avatarHTML(u.name, u.profile_pic)}</div><span class="uname">${u.name || '—'}</span></div></td>
+      <td class="mono green">${fmtRaw(u.rank_a)}</td>
+      <td class="mono blue">${u.rank_a_ranking || '—'}</td>
+      <td class="mono yellow">${fmtRaw(u.rank_b)}</td>
+      <td class="mono purple">${u.rank_b_ranking || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  renderTable(`<th>#</th><th>Manager</th><th>Rating A</th><th>Rank A</th><th>Rating B</th><th>Rank B</th>`,
+    rows, data.total_pages || 1, data.total || 0);
+}
+
+function renderTable(headHTML, rowsHTML, totalPages, totalItems) {
+  document.getElementById('content').innerHTML = `
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table><thead><tr>${headHTML}</tr></thead><tbody id="tableBody">${rowsHTML}</tbody></table>
+      </div>
+      <div class="pagination">
+        <button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>← Prev</button>
+        <span class="page-info">Page ${currentPage} of ${totalPages} (${fmtRaw(totalItems)} total)</span>
+        <button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Next →</button>
+      </div>
+    </div>`;
+}
+
+function goPage(p) {
+  if (p < 1) return;
+  currentPage = p;
+  expandedRow = null;
+  loadData();
+  window.scrollTo({ top: 300, behavior: 'smooth' });
+}
+
+// Format SVC value with USDC in brackets
+function fmtWithUsdc(rawVal) {
+  const svc = (rawVal || 0) / 10000;
+  const svcStr = fmtSvc(svc);
+  if (svcRate > 0) {
+    const usdc = svc * svcRate;
+    return `${svcStr} SVC <span style="color:var(--text-muted);font-size:11px">($${fmtSvc(usdc)})</span>`;
+  }
+  return `${svcStr} SVC`;
+}
+
+function fmtSvc(n) {
+  if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+async function toggleExpand(name, rowEl) {
+  const existing = document.querySelector('.expand-row');
+  if (existing) {
+    if (expandedRow === name) { existing.remove(); expandedRow = null; return; }
+    existing.remove();
+  }
+  expandedRow = name;
+  const colCount = rowEl.cells.length;
+
+  const loadRow = document.createElement('tr');
+  loadRow.className = 'expand-row';
+  loadRow.innerHTML = `<td colspan="${colCount}"><div class="expand-content" style="justify-items:center"><p style="color:var(--text-dim);font-size:13px;">Loading...</p></div></td>`;
+  rowEl.after(loadRow);
+
+  try {
+    const [richRes, earningsRes, detailedRes] = await Promise.allSettled([
+      apiFetch(`/rich_list?name=${encodeURIComponent(name)}&per_page=5`),
+      apiFetch(`/user_balance_sheet/earnings?name=${encodeURIComponent(name)}`),
+      apiFetch(`/users/detailed?names=${encodeURIComponent(name)}&per_page=5`)
+    ]);
+
+    const rich = richRes.status === 'fulfilled' ? richRes.value?.items?.[0] : null;
+    const earn = earningsRes.status === 'fulfilled' ? earningsRes.value : null;
+    const userD = detailedRes.status === 'fulfilled' ? detailedRes.value?.items?.[0] : null;
+
+    let html = '<div class="expand-content" style="grid-template-columns:1fr;">';
+
+    // ── Spent / Sold section ──
+    if (userD) {
+      // Pick the right buy/sell fields based on time period
+      let buyVal, sellVal, periodLabel;
+      if (timePeriod === '1d') {
+        buyVal = userD.buy_volume_1_day || 0;
+        sellVal = userD.sell_volume_1_day || 0;
+        periodLabel = '1D';
+      } else if (timePeriod === '7d') {
+        buyVal = userD.buy_volume_7_day || 0;
+        sellVal = userD.sell_volume_7_day || 0;
+        periodLabel = '7D';
+      } else if (timePeriod === '30d' || timePeriod === '14d') {
+        // API doesn't have 14d buy/sell split, show 30d
+        buyVal = null;
+        sellVal = null;
+        periodLabel = '30D';
+      } else {
+        buyVal = userD.buy_total_volume || 0;
+        sellVal = userD.sell_total_volume || 0;
+        periodLabel = 'Lifetime';
+      }
+
+      html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;width:100%;">`;
+
+      // Period buy/sell
+      if (buyVal !== null) {
+        const net = sellVal - buyVal;
+        html += `
+          <div class="expand-stat">
+            <div class="es-label">Spent (${periodLabel})</div>
+            <div class="es-val red">${fmtWithUsdc(buyVal)}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="es-label">Sold (${periodLabel})</div>
+            <div class="es-val green">${fmtWithUsdc(sellVal)}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="es-label">Net P/L (${periodLabel})</div>
+            <div class="es-val ${net >= 0 ? 'green' : 'red'}">${net >= 0 ? '▲ +' : '▼ '}${fmtWithUsdc(net)}</div>
+          </div>`;
+      }
+
+      // Always show lifetime totals if not already showing
+      if (timePeriod !== 'lifetime') {
+        const lifeBuy = userD.buy_total_volume || 0;
+        const lifeSell = userD.sell_total_volume || 0;
+        const lifeNet = lifeSell - lifeBuy;
+        html += `
+          <div class="expand-stat">
+            <div class="es-label">Spent (Lifetime)</div>
+            <div class="es-val red">${fmtWithUsdc(lifeBuy)}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="es-label">Sold (Lifetime)</div>
+            <div class="es-val green">${fmtWithUsdc(lifeSell)}</div>
+          </div>
+          <div class="expand-stat">
+            <div class="es-label">Net P/L (Lifetime)</div>
+            <div class="es-val ${lifeNet >= 0 ? 'green' : 'red'}">${lifeNet >= 0 ? '▲ +' : '▼ '}${fmtWithUsdc(lifeNet)}</div>
+          </div>`;
+      }
+
+      html += `</div>`;
+    }
+
+    // ── Separator ──
+    html += `<div style="border-top:1px solid var(--border);margin:12px 0;"></div>`;
+
+    // ── Net worth / balance row ──
+    html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;width:100%;">`;
+
+    if (rich) {
+      html += `
+        <div class="expand-stat"><div class="es-label">Net Worth</div><div class="es-val green">${fmtWithUsdc(rich.total_networth)}</div></div>
+        <div class="expand-stat"><div class="es-label">Balance</div><div class="es-val blue">${fmtWithUsdc(rich.balance)}</div></div>
+        <div class="expand-stat"><div class="es-label">Club Assets</div><div class="es-val yellow">${fmtWithUsdc(rich.club_asset_value)}</div></div>
+        <div class="expand-stat"><div class="es-label">Player Assets</div><div class="es-val purple">${fmtWithUsdc(rich.player_asset_value)}</div></div>
+        <div class="expand-stat"><div class="es-label">Rich Rank</div><div class="es-val green">#${rich.rank || '—'}</div></div>`;
+    }
+
+    if (earn) {
+      const periodMap = {
+        '1d': earn.earnings_last_match_day,
+        '7d': earn.earnings_7d,
+        '14d': earn.earnings_14d,
+        '30d': earn.earnings_30d,
+        'lifetime': earn.earnings_30d
+      };
+      const ep = periodMap[timePeriod] || earn.earnings_7d || {};
+      const pLabel = timePeriod === 'lifetime' ? '30D' : timePeriod.toUpperCase();
+      html += `<div class="expand-stat"><div class="es-label">Earned ${pLabel}</div><div class="es-val green">${fmtWithUsdc((ep.svc || 0) * 10000)}</div></div>`;
+    }
+
+    html += `</div></div>`;
+
+    loadRow.innerHTML = `<td colspan="${colCount}">${html}</td>`;
+  } catch (e) {
+    loadRow.innerHTML = `<td colspan="${colCount}"><div class="expand-content"><p style="color:var(--red);font-size:13px;">Could not load details</p></div></td>`;
+  }
+}
+
+loadMarket();
+loadData();
+</script>
+
+</body>
+</html>
